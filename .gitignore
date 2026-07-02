@@ -1,0 +1,16 @@
+# Unreal Engine generated folders — always safe to delete/regenerate
+**/Binaries/
+**/DerivedDataCache/
+**/Intermediate/
+**/Saved/
+**/Build/
+
+# IDE / OS noise
+**/.vs/
+*.sln
+*.suo
+*.VC.db
+*.opensdf
+*.opendb
+.DS_Store
+Thumbs.db
