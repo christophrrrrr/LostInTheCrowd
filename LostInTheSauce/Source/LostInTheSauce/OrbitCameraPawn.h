@@ -30,7 +30,7 @@ protected:
 	TObjectPtr<UCameraComponent> Camera;
 
 	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float RotateSpeed = 2.5f; // degrees per mouse delta unit
+	float RotateSpeed = 0.35f; // degrees per screen pixel dragged
 
 	UPROPERTY(EditAnywhere, Category = "Orbit")
 	float ZoomStep = 250.f;
@@ -44,4 +44,6 @@ protected:
 private:
 	float TargetArmLength = 2600.f;
 	float PitchDegrees = -55.f;
+	bool bDragging = false;
+	FVector2D DragAnchor = FVector2D::ZeroVector;
 };

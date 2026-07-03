@@ -36,10 +36,12 @@ protected:
 	void StartRound();
 	void ClearRound();
 	bool FindSpawnPoint(FVector& OutLocation) const;
+	void DumpDiagnostics();
 
-	ENPCType TargetType = ENPCType::Merchant;
+	ENPCType TargetType = ENPCType::Farmer;
 	bool bRoundWon = false;
 	float LastWrongClickTime = -1000.f;
+	FTimerHandle AutoShotTimerHandle;
 
 	UPROPERTY()
 	TArray<TObjectPtr<ANPCCharacter>> SpawnedNPCs;

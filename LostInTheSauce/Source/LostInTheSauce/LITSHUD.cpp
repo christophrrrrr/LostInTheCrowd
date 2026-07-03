@@ -24,18 +24,13 @@ void ALITSHUD::DrawHUD()
 	const FString Objective = FString::Printf(TEXT("FIND THE %s"), TargetStyle.DisplayName).ToUpper();
 	DrawCenteredText(Objective, FLinearColor::White, CenterX, 34.f, 2.2f);
 
-	// Color swatch beside the banner: body color with the darker hat color on top.
+	// Color swatch beside the banner as a quick visual cue for the target.
 	UFont* Font = GEngine->GetLargeFont();
 	float TextWidth = 0.f, TextHeight = 0.f;
 	GetTextSize(Objective, TextWidth, TextHeight, Font, 2.2f);
 	const float SwatchX = CenterX + TextWidth * 0.5f + 18.f;
-	DrawRect(FLinearColor(TargetStyle.BodyColor.R, TargetStyle.BodyColor.G, TargetStyle.BodyColor.B, 1.f),
+	DrawRect(FLinearColor(TargetStyle.SwatchColor.R, TargetStyle.SwatchColor.G, TargetStyle.SwatchColor.B, 1.f),
 		SwatchX, 40.f, 34.f, 34.f);
-	if (TargetStyle.HatShape != EHatShape::None)
-	{
-		const FLinearColor HatColor = TargetStyle.BodyColor * 0.65f;
-		DrawRect(FLinearColor(HatColor.R, HatColor.G, HatColor.B, 1.f), SwatchX + 5.f, 30.f, 24.f, 10.f);
-	}
 
 	// --- Wrong-click feedback ---------------------------------------------
 	const float SinceWrong = GetWorld()->GetTimeSeconds() - GameMode->GetLastWrongClickTime();

@@ -6,35 +6,27 @@
 UENUM(BlueprintType)
 enum class ENPCType : uint8
 {
-	Knight,
-	Guard,
-	Merchant,
 	Farmer,
-	Monk,
+	King,
+	Witch,
+	Adventurer,
+	// Knight is benched: its GLB uses an incompatible rig with no animations.
+	// Drop a same-pack knight GLB into assets/ to bring him back.
 
 	Count UMETA(Hidden)
 };
 
 constexpr int32 NPCTypeCount = static_cast<int32>(ENPCType::Count);
 
-enum class EHatShape : uint8
-{
-	None,
-	Cube,
-	Sphere,
-	Cylinder,
-	Cone
-};
-
-// Visual identity of one character type. Colors are muted and close together
-// on purpose: the player should have to look twice. Hat silhouette is the
-// second tell. Tune here, recompile, done.
+// Visual identity of one character type. Mesh paths come from the GLB import
+// (Scripts/import_characters.py); each character's animations live in the
+// same folder as its mesh and are found by name suffix at runtime.
+// Swatch color is only used on the HUD banner.
 struct FNPCTypeStyle
 {
 	const TCHAR* DisplayName;
-	FLinearColor BodyColor;
-	EHatShape HatShape;
-	FVector HatSize; // world-space size in cm (X, Y, height)
+	const TCHAR* MeshPath;
+	FLinearColor SwatchColor;
 };
 
 namespace NPCTypeStyles
@@ -42,11 +34,10 @@ namespace NPCTypeStyles
 	inline const FNPCTypeStyle& Get(ENPCType Type)
 	{
 		static const FNPCTypeStyle Styles[NPCTypeCount] = {
-			{ TEXT("Knight"),   FLinearColor(0.30f, 0.33f, 0.40f), EHatShape::Cube,     FVector(42, 42, 16) },
-			{ TEXT("Guard"),    FLinearColor(0.36f, 0.19f, 0.17f), EHatShape::Cone,     FVector(36, 36, 34) },
-			{ TEXT("Merchant"), FLinearColor(0.46f, 0.36f, 0.13f), EHatShape::Sphere,   FVector(40, 40, 22) },
-			{ TEXT("Farmer"),   FLinearColor(0.31f, 0.23f, 0.15f), EHatShape::Cylinder, FVector(56, 56, 10) },
-			{ TEXT("Monk"),     FLinearColor(0.28f, 0.28f, 0.19f), EHatShape::None,     FVector::ZeroVector },
+			{ TEXT("Farmer"),     TEXT("/Game/LostInTheSauce/Characters/Farmer/Farmer"),            FLinearColor(0.75f, 0.65f, 0.40f) },
+			{ TEXT("King"),       TEXT("/Game/LostInTheSauce/Characters/King/King"),                FLinearColor(0.85f, 0.65f, 0.15f) },
+			{ TEXT("Witch"),      TEXT("/Game/LostInTheSauce/Characters/Witch/Witch"),              FLinearColor(0.45f, 0.20f, 0.60f) },
+			{ TEXT("Adventurer"), TEXT("/Game/LostInTheSauce/Characters/Adventurer/Medieval_Body"), FLinearColor(0.40f, 0.30f, 0.20f) },
 		};
 		return Styles[FMath::Clamp(static_cast<int32>(Type), 0, NPCTypeCount - 1)];
 	}

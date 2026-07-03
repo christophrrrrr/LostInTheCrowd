@@ -40,14 +40,27 @@ void ANPCAIController::PickNewDestination()
 		return;
 	}
 
+	// One-time diagnostics so a broken navmesh is obvious in the log.
+	static bool bLoggedNavStatus = false;
+
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
 	FNavLocation Destination;
 	if (NavSystem && NavSystem->GetRandomReachablePointInRadius(GetPawn()->GetActorLocation(), WanderRadius, Destination))
 	{
+		if (!bLoggedNavStatus)
+		{
+			bLoggedNavStatus = true;
+			UE_LOG(LogTemp, Log, TEXT("LITS: navmesh OK, NPCs wandering"));
+		}
 		MoveToLocation(Destination.Location, 40.f);
 	}
 	else
 	{
+		if (!bLoggedNavStatus)
+		{
+			bLoggedNavStatus = true;
+			UE_LOG(LogTemp, Warning, TEXT("LITS: no reachable navmesh point found - NPCs will stand still"));
+		}
 		// No navmesh (yet) — try again shortly instead of spamming every frame.
 		GetWorldTimerManager().SetTimer(IdleTimerHandle, this, &ANPCAIController::PickNewDestination, 2.f, false);
 	}

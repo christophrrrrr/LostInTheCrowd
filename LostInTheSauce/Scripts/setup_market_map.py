@@ -65,19 +65,53 @@ else:
 
 labels = existing_labels()
 
-# --- Lighting ---------------------------------------------------------------
-if "Sun" not in labels:
-    sun = spawn(unreal.DirectionalLight, "Sun", (0, 0, 2000), (0.0, -50.0, 35.0))
-    sun.get_component_by_class(unreal.DirectionalLightComponent).set_editor_property(
-        "atmosphere_sun_light", True)
+# --- Lighting (find-or-create, then always refresh properties) --------------
+def find_by_label(label):
+    for a in actor_sub.get_all_level_actors():
+        if a.get_actor_label() == label:
+            return a
+    return None
 
-if "Sky" not in labels:
+
+sun = find_by_label("Sun") or spawn(unreal.DirectionalLight, "Sun", (0, 0, 2000))
+sun.set_actor_rotation(unreal.Rotator(0.0, -50.0, 35.0), False)
+sun_comp = sun.get_component_by_class(unreal.DirectionalLightComponent)
+sun_comp.set_editor_property("atmosphere_sun_light", True)
+# Physical daylight (lux) so the EV100 exposure clamp below lands correctly.
+sun_comp.set_editor_property("intensity", 50000.0)
+
+if not find_by_label("Sky"):
     spawn(unreal.SkyAtmosphere, "Sky", (0, 0, 0))
 
-if "SkyLight" not in labels:
-    skylight = spawn(unreal.SkyLight, "SkyLight", (0, 0, 500))
-    skylight.get_component_by_class(unreal.SkyLightComponent).set_editor_property(
-        "real_time_capture", True)
+fog = find_by_label("Fog") or spawn(unreal.ExponentialHeightFog, "Fog", (0, 0, 0))
+fog_comp = fog.get_component_by_class(unreal.ExponentialHeightFogComponent)
+fog_comp.set_editor_property("fog_density", 0.006)
+fog_comp.set_editor_property("start_distance", 2000.0)
+
+skylight = find_by_label("SkyLight") or spawn(unreal.SkyLight, "SkyLight", (0, 0, 500))
+skylight_comp = skylight.get_component_by_class(unreal.SkyLightComponent)
+skylight_comp.set_editor_property("real_time_capture", True)
+
+# Clamp auto-exposure to daylight values so the white graybox doesn't blow out.
+ppv = find_by_label("ExposureVolume") or spawn(unreal.PostProcessVolume, "ExposureVolume", (0, 0, 0))
+ppv.set_editor_property("unbound", True)
+pp_settings = ppv.get_editor_property("settings")
+pp_settings.set_editor_property("override_auto_exposure_min_brightness", True)
+pp_settings.set_editor_property("override_auto_exposure_max_brightness", True)
+pp_settings.set_editor_property("auto_exposure_min_brightness", 12.5)
+pp_settings.set_editor_property("auto_exposure_max_brightness", 13.5)
+# Motion blur turns a scanning game into soup; off.
+pp_settings.set_editor_property("override_motion_blur_amount", True)
+pp_settings.set_editor_property("motion_blur_amount", 0.0)
+ppv.set_editor_property("settings", pp_settings)
+
+# A stale RecastNavMesh actor saved in the map overrides the Dynamic runtime
+# generation configured in DefaultEngine.ini. Delete it; the game auto-creates
+# a fresh one with correct (Dynamic) class defaults at startup.
+for actor in list(actor_sub.get_all_level_actors()):
+    if isinstance(actor, unreal.RecastNavMesh):
+        log(f"Deleting stale navmesh actor {actor.get_actor_label()}")
+        actor_sub.destroy_actor(actor)
 
 # --- Ground: 46m x 46m square ------------------------------------------------
 if "Floor" not in labels:

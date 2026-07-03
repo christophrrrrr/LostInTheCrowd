@@ -33,15 +33,34 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		return;
 	}
 
+	// GetInputMouseDelta reads zero while the cursor is visible, so orbit by
+	// anchoring the cursor: measure how far it moved from the anchor each
+	// frame, apply that as rotation, then pin it back to the anchor.
 	if (PC->IsInputKeyDown(EKeys::RightMouseButton))
 	{
-		float DeltaX = 0.f, DeltaY = 0.f;
-		PC->GetInputMouseDelta(DeltaX, DeltaY);
-
-		AddActorWorldRotation(FRotator(0.f, DeltaX * RotateSpeed, 0.f));
-
-		PitchDegrees = FMath::Clamp(PitchDegrees + DeltaY * RotateSpeed, -80.f, -20.f);
-		SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
+		float MouseX = 0.f, MouseY = 0.f;
+		if (PC->GetMousePosition(MouseX, MouseY))
+		{
+			if (!bDragging)
+			{
+				bDragging = true;
+				DragAnchor = FVector2D(MouseX, MouseY);
+				PC->bShowMouseCursor = false;
+			}
+			else
+			{
+				const FVector2D Delta = FVector2D(MouseX, MouseY) - DragAnchor;
+				AddActorWorldRotation(FRotator(0.f, Delta.X * RotateSpeed, 0.f));
+				PitchDegrees = FMath::Clamp(PitchDegrees - Delta.Y * RotateSpeed, -80.f, -20.f);
+				SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
+				PC->SetMouseLocation(static_cast<int32>(DragAnchor.X), static_cast<int32>(DragAnchor.Y));
+			}
+		}
+	}
+	else if (bDragging)
+	{
+		bDragging = false;
+		PC->bShowMouseCursor = true;
 	}
 
 	if (PC->WasInputKeyJustPressed(EKeys::MouseScrollUp))

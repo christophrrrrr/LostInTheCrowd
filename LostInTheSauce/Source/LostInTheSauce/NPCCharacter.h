@@ -5,7 +5,7 @@
 #include "NPCTypes.h"
 #include "NPCCharacter.generated.h"
 
-class UMaterialInstanceDynamic;
+class UAnimSequence;
 
 UCLASS()
 class LOSTINTHESAUCE_API ANPCCharacter : public ACharacter
@@ -15,52 +15,48 @@ class LOSTINTHESAUCE_API ANPCCharacter : public ACharacter
 public:
 	ANPCCharacter();
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	void SetNPCType(ENPCType InType);
 	ENPCType GetNPCType() const { return NPCType; }
 
-	// Brief hop + white flash so a wrong click still feels responsive.
+	// Hop + hit reaction so a wrong click still feels responsive.
 	void ReactToWrongClick();
 
-	// Target was found: stop wandering and hop in place until the round restarts.
+	// Target was found: stop wandering and wave at the player.
 	void CelebrateFound();
 
 protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "NPC")
-	TObjectPtr<UStaticMeshComponent> BodyMesh;
-
-	UPROPERTY(VisibleAnywhere, Category = "NPC")
-	TObjectPtr<UStaticMeshComponent> HeadMesh;
-
-	UPROPERTY(VisibleAnywhere, Category = "NPC")
-	TObjectPtr<UStaticMeshComponent> HatMesh;
-
-	UPROPERTY(VisibleAnywhere, Category = "NPC")
 	ENPCType NPCType = ENPCType::Farmer;
 
+	// How tall every character stands in cm, regardless of import scale.
+	UPROPERTY(EditAnywhere, Category = "NPC")
+	float TargetHeight = 175.f;
+
 private:
-	void ApplyStyle();
-	void ScaleMeshTo(UStaticMeshComponent* MeshComp, const FVector& TargetSize, float CenterZ) const;
+	void ApplyMesh();
+	void PlayLooping(UAnimSequence* Anim);
 
 	UPROPERTY()
-	TObjectPtr<UMaterialInstanceDynamic> BodyMID;
+	TObjectPtr<UAnimSequence> WalkAnim;
+	UPROPERTY()
+	TObjectPtr<UAnimSequence> IdleAnim;
+	UPROPERTY()
+	TObjectPtr<UAnimSequence> WaveAnim;
+	UPROPERTY()
+	TObjectPtr<UAnimSequence> HitAnim;
 
 	UPROPERTY()
-	TObjectPtr<UMaterialInstanceDynamic> HeadMID;
+	TObjectPtr<UAnimSequence> CurrentLoop;
 
-	UPROPERTY()
-	TObjectPtr<UMaterialInstanceDynamic> HatMID;
+	bool bCelebrating = false;
+	float OneShotEndTime = 0.f;
 
-	UPROPERTY()
-	TObjectPtr<UStaticMesh> CubeMesh;
-	UPROPERTY()
-	TObjectPtr<UStaticMesh> SphereMesh;
-	UPROPERTY()
-	TObjectPtr<UStaticMesh> CylinderMesh;
-	UPROPERTY()
-	TObjectPtr<UStaticMesh> ConeMesh;
-
-	FTimerHandle FlashTimerHandle;
-	FTimerHandle CelebrateTimerHandle;
+	// Import units on these GLBs are unreliable, so the rendered mesh is
+	// measured and corrected over the first frames after spawn:
+	// 0 = wait for valid bounds, 1 = fix scale, 2 = fix feet position, 3 = done.
+	int32 CalibrationPhase = 0;
 };
