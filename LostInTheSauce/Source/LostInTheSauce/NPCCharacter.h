@@ -38,7 +38,7 @@ protected:
 
 private:
 	void ApplyStyle();
-	void ScaleMeshTo(UStaticMeshComponent* Mesh, const FVector& TargetSize, float CenterZ) const;
+	void ScaleMeshTo(UStaticMeshComponent* MeshComp, const FVector& TargetSize, float CenterZ) const;
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> BodyMID;

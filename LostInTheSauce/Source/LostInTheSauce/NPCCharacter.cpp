@@ -121,9 +121,9 @@ void ANPCCharacter::ApplyStyle()
 	}
 }
 
-void ANPCCharacter::ScaleMeshTo(UStaticMeshComponent* Mesh, const FVector& TargetSize, float CenterZ) const
+void ANPCCharacter::ScaleMeshTo(UStaticMeshComponent* MeshComp, const FVector& TargetSize, float CenterZ) const
 {
-	const UStaticMesh* StaticMesh = Mesh ? Mesh->GetStaticMesh() : nullptr;
+	const UStaticMesh* StaticMesh = MeshComp ? MeshComp->GetStaticMesh() : nullptr;
 	if (!StaticMesh)
 	{
 		return;
@@ -133,8 +133,8 @@ void ANPCCharacter::ScaleMeshTo(UStaticMeshComponent* Mesh, const FVector& Targe
 	{
 		return;
 	}
-	Mesh->SetRelativeScale3D(TargetSize / MeshSize);
-	Mesh->SetRelativeLocation(FVector(0.f, 0.f, CenterZ));
+	MeshComp->SetRelativeScale3D(TargetSize / MeshSize);
+	MeshComp->SetRelativeLocation(FVector(0.f, 0.f, CenterZ));
 }
 
 void ANPCCharacter::ReactToWrongClick()
