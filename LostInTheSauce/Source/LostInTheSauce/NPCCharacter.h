@@ -31,6 +31,9 @@ protected:
 	TObjectPtr<UStaticMeshComponent> BodyMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "NPC")
+	TObjectPtr<UStaticMeshComponent> HeadMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "NPC")
 	TObjectPtr<UStaticMeshComponent> HatMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "NPC")
@@ -42,6 +45,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> BodyMID;
+
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> HeadMID;
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> HatMID;

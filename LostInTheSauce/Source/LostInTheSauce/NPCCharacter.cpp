@@ -12,8 +12,16 @@
 
 namespace
 {
-	constexpr float BodyHeight = 180.f;
-	constexpr float BodyWidth = 56.f;
+	// Board-game-piece proportions: cylinder body, sphere head, hat on top.
+	constexpr float BodyHeight = 140.f;
+	constexpr float BodyWidth = 54.f;
+	constexpr float BodyCenterZ = -20.f;  // body spans -90..+50 relative to capsule center
+	constexpr float HeadSize = 40.f;
+	constexpr float HeadCenterZ = 68.f;   // head spans +48..+88
+	constexpr float HatBaseZ = 86.f;      // hats sit just on top of the head
+
+	// Every NPC gets the same head color so the only tells are outfit and hat.
+	const FLinearColor SkinTone(0.55f, 0.42f, 0.32f);
 }
 
 ANPCCharacter::ANPCCharacter()
@@ -24,7 +32,6 @@ ANPCCharacter::ANPCCharacter()
 	// Make sure the click trace (visibility channel) always hits the capsule.
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CapsuleFinder(TEXT("/Engine/BasicShapes/Capsule.Capsule"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeFinder(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereFinder(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CylinderFinder(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
@@ -38,11 +45,19 @@ ANPCCharacter::ANPCCharacter()
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
 	BodyMesh->SetupAttachment(GetCapsuleComponent());
-	BodyMesh->SetStaticMesh(CapsuleFinder.Object);
+	BodyMesh->SetStaticMesh(CylinderFinder.Object);
 	BodyMesh->SetMaterial(0, MaterialFinder.Object);
 	BodyMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	BodyMesh->SetGenerateOverlapEvents(false);
 	BodyMesh->SetCanEverAffectNavigation(false);
+
+	HeadMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HeadMesh"));
+	HeadMesh->SetupAttachment(GetCapsuleComponent());
+	HeadMesh->SetStaticMesh(SphereFinder.Object);
+	HeadMesh->SetMaterial(0, MaterialFinder.Object);
+	HeadMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	HeadMesh->SetGenerateOverlapEvents(false);
+	HeadMesh->SetCanEverAffectNavigation(false);
 
 	HatMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HatMesh"));
 	HatMesh->SetupAttachment(GetCapsuleComponent());
@@ -84,13 +99,20 @@ void ANPCCharacter::ApplyStyle()
 {
 	const FNPCTypeStyle& Style = NPCTypeStyles::Get(NPCType);
 
-	ScaleMeshTo(BodyMesh, FVector(BodyWidth, BodyWidth, BodyHeight), 0.f);
+	ScaleMeshTo(BodyMesh, FVector(BodyWidth, BodyWidth, BodyHeight), BodyCenterZ);
+	ScaleMeshTo(HeadMesh, FVector(HeadSize, HeadSize, HeadSize), HeadCenterZ);
 
 	if (!BodyMID)
 	{
 		BodyMID = BodyMesh->CreateAndSetMaterialInstanceDynamic(0);
 	}
 	BodyMID->SetVectorParameterValue(TEXT("Color"), Style.BodyColor);
+
+	if (!HeadMID)
+	{
+		HeadMID = HeadMesh->CreateAndSetMaterialInstanceDynamic(0);
+		HeadMID->SetVectorParameterValue(TEXT("Color"), SkinTone);
+	}
 
 	UStaticMesh* HatShapeMesh = nullptr;
 	switch (Style.HatShape)
@@ -106,7 +128,7 @@ void ANPCCharacter::ApplyStyle()
 	{
 		HatMesh->SetStaticMesh(HatShapeMesh);
 		HatMesh->SetVisibility(true);
-		ScaleMeshTo(HatMesh, Style.HatSize, BodyHeight * 0.5f + Style.HatSize.Z * 0.5f + 2.f);
+		ScaleMeshTo(HatMesh, Style.HatSize, HatBaseZ + Style.HatSize.Z * 0.5f);
 
 		if (!HatMID)
 		{
