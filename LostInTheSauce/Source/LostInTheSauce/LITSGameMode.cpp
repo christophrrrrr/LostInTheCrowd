@@ -75,6 +75,21 @@ void ALITSGameMode::StartRound()
 	bRoundWon = false;
 	TargetType = static_cast<ENPCType>(FMath::RandRange(0, NPCTypeCount - 1));
 
+	// Dev: -LITSForceTarget=<DisplayName> pins the round target (and thereby
+	// which character the AutoShot close-up camera inspects).
+	FString ForcedTarget;
+	if (FParse::Value(FCommandLine::Get(), TEXT("LITSForceTarget="), ForcedTarget))
+	{
+		for (int32 i = 0; i < NPCTypeCount; ++i)
+		{
+			if (ForcedTarget.Equals(NPCTypeStyles::Get(static_cast<ENPCType>(i)).DisplayName, ESearchCase::IgnoreCase))
+			{
+				TargetType = static_cast<ENPCType>(i);
+				break;
+			}
+		}
+	}
+
 	for (int32 i = 0; i < NPCCount; ++i)
 	{
 		// Exactly one NPC of the target type per round: the first one spawned.
@@ -203,6 +218,24 @@ void ALITSGameMode::DumpDiagnostics()
 			*NPC->GetActorLocation().ToCompactString(),
 			*NPC->GetMesh()->GetRelativeScale3D().ToCompactString(),
 			MeshBounds.BoxExtent.Z * 2.f);
+
+		// Component-space rotations of the first bones reveal how the anim
+		// data orients the rig, so the mesh correction can be computed
+		// instead of guessed.
+		USkeletalMeshComponent* Mesh = NPC->GetMesh();
+		UE_LOG(LogTemp, Log, TEXT("LITS-DIAG mesh relRot=%s worldRot=%s actorRot=%s"),
+			*Mesh->GetRelativeRotation().ToCompactString(),
+			*Mesh->GetComponentRotation().ToCompactString(),
+			*NPC->GetActorRotation().ToCompactString());
+		for (int32 BoneIndex = 0; BoneIndex < FMath::Min(3, Mesh->GetNumBones()); ++BoneIndex)
+		{
+			const FName BoneName = Mesh->GetBoneName(BoneIndex);
+			const FQuat CompQuat = Mesh->GetBoneQuaternion(BoneName, EBoneSpaces::ComponentSpace);
+			const FQuat WorldQuat = Mesh->GetBoneQuaternion(BoneName, EBoneSpaces::WorldSpace);
+			UE_LOG(LogTemp, Log, TEXT("LITS-DIAG bone[%d] %s comp-rot=%s world-rot=%s"),
+				BoneIndex, *BoneName.ToString(), *CompQuat.Rotator().ToCompactString(),
+				*WorldQuat.Rotator().ToCompactString());
+		}
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("LITS-DIAG ======================================"));

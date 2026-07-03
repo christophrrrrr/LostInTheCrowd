@@ -54,9 +54,4 @@ private:
 
 	bool bCelebrating = false;
 	float OneShotEndTime = 0.f;
-
-	// Import units on these GLBs are unreliable, so the rendered mesh is
-	// measured and corrected over the first frames after spawn:
-	// 0 = wait for valid bounds, 1 = fix scale, 2 = fix feet position, 3 = done.
-	int32 CalibrationPhase = 0;
 };

@@ -55,7 +55,6 @@ namespace
 				return Cast<UAnimSequence>(Asset.GetAsset());
 			}
 		}
-		UE_LOG(LogTemp, Warning, TEXT("LITS: no anim ending in %s under %s"), *Suffix, *Folder);
 		return nullptr;
 	}
 }
@@ -96,14 +95,14 @@ void ANPCCharacter::ApplyMesh()
 	GetMesh()->SetPhysicsAsset(nullptr, true);
 
 #if WITH_EDITOR
-	// The GLB animation tracks store bone translations in units that don't
-	// match the imported rig, which stretches limbs into noodles. Pin every
-	// bone except the root to the skeleton's own proportions; animations
-	// then drive rotation only, which is all this low-poly pack needs.
+	// Pin every bone INCLUDING the root to the skeleton's own proportions:
+	// the pack's animation tracks carry root orientation/translation that
+	// tips characters over and stretches limbs. Animations then drive
+	// rotation only, which is all this low-poly pack needs.
 	if (USkeleton* Skeleton = SkeletalMesh->GetSkeleton())
 	{
 		const int32 NumBones = Skeleton->GetReferenceSkeleton().GetNum();
-		for (int32 BoneIndex = 1; BoneIndex < NumBones; ++BoneIndex)
+		for (int32 BoneIndex = 0; BoneIndex < NumBones; ++BoneIndex)
 		{
 			Skeleton->SetBoneTranslationRetargetingMode(BoneIndex, EBoneTranslationRetargetingMode::Skeleton);
 		}
@@ -113,9 +112,11 @@ void ANPCCharacter::ApplyMesh()
 	// Stand the glTF character upright (roll 90 lifts the Y-up rig to Z-up)
 	// and yaw so it faces the actor's forward. -LITSMeshRot=P,Y,R overrides
 	// for quick iteration without recompiling.
-	FRotator MeshRotation(0.f, -90.f, 90.f);
+	FRotator MeshRotation(0.f, -90.f, 0.f);
 	FString RotationOverride;
-	if (FParse::Value(FCommandLine::Get(), TEXT("LITSMeshRot="), RotationOverride))
+	// bShouldStopOnSeparator=false: the value contains commas, which FParse
+	// otherwise treats as terminators (it silently truncates to "0").
+	if (FParse::Value(FCommandLine::Get(), TEXT("LITSMeshRot="), RotationOverride, false))
 	{
 		TArray<FString> Parts;
 		RotationOverride.ParseIntoArray(Parts, TEXT(","));
@@ -126,50 +127,49 @@ void ANPCCharacter::ApplyMesh()
 	}
 	GetMesh()->SetRelativeRotation(MeshRotation);
 
+	// FBX asset bounds are trustworthy (unlike the old GLBs), so size the
+	// character once from the reference pose: TargetHeight tall, feet on the
+	// capsule bottom.
+	const FBoxSphereBounds RefBounds = SkeletalMesh->GetBounds();
+	const float RefHeight = RefBounds.BoxExtent.Z * 2.f;
+	if (RefHeight > KINDA_SMALL_NUMBER)
+	{
+		const float Scale = TargetHeight / RefHeight;
+		GetMesh()->SetRelativeScale3D(FVector(Scale));
+		const float FeetZ = (RefBounds.Origin.Z - RefBounds.BoxExtent.Z) * Scale;
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f,
+			-GetCapsuleComponent()->GetScaledCapsuleHalfHeight() - FeetZ));
+	}
+
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 	CurrentLoop = nullptr;
-	CalibrationPhase = 0; // measure and rescale over the next frames
 
-	// Each character plays its own skeleton's clips (no cross-skeleton sharing).
+	// Clips live in the character's own folder; meshes that imported without
+	// animations share the Adventurer's skeleton and borrow its clips.
 	const FString Folder = FPackageName::GetLongPackagePath(Style.MeshPath);
-	WalkAnim = FindAnimInFolder(Folder, TEXT("_Walk"));
-	IdleAnim = FindAnimInFolder(Folder, TEXT("_Idle_Neutral"));
-	WaveAnim = FindAnimInFolder(Folder, TEXT("_Wave"));
-	HitAnim = FindAnimInFolder(Folder, TEXT("_HitRecieve"));
+	const FString DonorFolder = TEXT("/Game/LostInTheSauce/Characters/Adventurer");
+	auto FindAnim = [&Folder, &DonorFolder](const TCHAR* Suffix) -> UAnimSequence*
+	{
+		if (UAnimSequence* Anim = FindAnimInFolder(Folder, Suffix))
+		{
+			return Anim;
+		}
+		UAnimSequence* Donor = FindAnimInFolder(DonorFolder, Suffix);
+		if (!Donor)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("LITS: no anim ending in %s under %s or donor folder"), Suffix, *Folder);
+		}
+		return Donor;
+	};
+	WalkAnim = FindAnim(TEXT("_Walk"));
+	IdleAnim = FindAnim(TEXT("_Idle_Neutral"));
+	WaveAnim = FindAnim(TEXT("_Wave"));
+	HitAnim = FindAnim(TEXT("_HitRecieve"));
 }
 
 void ANPCCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	// Self-calibration: the GLB import metadata is wrong by orders of
-	// magnitude and the animated pose shifts the bounds again, so keep
-	// measuring the rendered mesh and correcting until it converges.
-	if (CalibrationPhase < 30 && GetMesh()->GetSkeletalMeshAsset())
-	{
-		const FBoxSphereBounds WorldBounds = GetMesh()->Bounds;
-		const float WorldHeight = WorldBounds.BoxExtent.Z * 2.f;
-		if (WorldHeight > KINDA_SMALL_NUMBER)
-		{
-			if (FMath::Abs(WorldHeight - TargetHeight) > TargetHeight * 0.05f)
-			{
-				GetMesh()->SetRelativeScale3D(GetMesh()->GetRelativeScale3D() * (TargetHeight / WorldHeight));
-				++CalibrationPhase;
-			}
-			else
-			{
-				CalibrationPhase = 30; // converged
-			}
-			// Whenever size changed (or we just converged), re-plant the feet.
-			const float WorldFeetZ = WorldBounds.Origin.Z - WorldBounds.BoxExtent.Z;
-			const float CapsuleBottomZ = GetActorLocation().Z - GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-			GetMesh()->AddRelativeLocation(FVector(0.f, 0.f, CapsuleBottomZ - WorldFeetZ));
-		}
-		if (CalibrationPhase < 30)
-		{
-			return;
-		}
-	}
 
 	if (bCelebrating)
 	{

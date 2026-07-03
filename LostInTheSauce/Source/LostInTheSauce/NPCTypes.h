@@ -10,8 +10,8 @@ enum class ENPCType : uint8
 	King,
 	Witch,
 	Adventurer,
-	// Knight is benched: its GLB uses an incompatible rig with no animations.
-	// Drop a same-pack knight GLB into assets/ to bring him back.
+	Medieval,
+	// Knight slot pending: user is producing Mixamo animations for it.
 
 	Count UMETA(Hidden)
 };
@@ -34,10 +34,11 @@ namespace NPCTypeStyles
 	inline const FNPCTypeStyle& Get(ENPCType Type)
 	{
 		static const FNPCTypeStyle Styles[NPCTypeCount] = {
-			{ TEXT("Farmer"),     TEXT("/Game/LostInTheSauce/Characters/Farmer/Farmer"),            FLinearColor(0.75f, 0.65f, 0.40f) },
-			{ TEXT("King"),       TEXT("/Game/LostInTheSauce/Characters/King/King"),                FLinearColor(0.85f, 0.65f, 0.15f) },
-			{ TEXT("Witch"),      TEXT("/Game/LostInTheSauce/Characters/Witch/Witch"),              FLinearColor(0.45f, 0.20f, 0.60f) },
-			{ TEXT("Adventurer"), TEXT("/Game/LostInTheSauce/Characters/Adventurer/Medieval_Body"), FLinearColor(0.40f, 0.30f, 0.20f) },
+			{ TEXT("Farmer"),     TEXT("/Game/LostInTheSauce/Characters/Farmer/Farmer"),         FLinearColor(0.75f, 0.65f, 0.40f) },
+			{ TEXT("King"),       TEXT("/Game/LostInTheSauce/Characters/King/King"),             FLinearColor(0.85f, 0.65f, 0.15f) },
+			{ TEXT("Witch"),      TEXT("/Game/LostInTheSauce/Characters/Witch/Witch"),           FLinearColor(0.45f, 0.20f, 0.60f) },
+			{ TEXT("Adventurer"), TEXT("/Game/LostInTheSauce/Characters/Adventurer/Adventurer"), FLinearColor(0.40f, 0.30f, 0.20f) },
+			{ TEXT("Squire"),     TEXT("/Game/LostInTheSauce/Characters/Medieval/Medieval"),     FLinearColor(0.70f, 0.40f, 0.20f) },
 		};
 		return Styles[FMath::Clamp(static_cast<int32>(Type), 0, NPCTypeCount - 1)];
 	}

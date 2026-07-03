@@ -1,17 +1,54 @@
 {
   "imported": {
+    "Adventurer": [
+      "/Game/LostInTheSauce/Characters/Adventurer/Grey.Grey",
+      "/Game/LostInTheSauce/Characters/Adventurer/Black.Black",
+      "/Game/LostInTheSauce/Characters/Adventurer/Brown.Brown",
+      "/Game/LostInTheSauce/Characters/Adventurer/Brown2.Brown2",
+      "/Game/LostInTheSauce/Characters/Adventurer/Skin.Skin",
+      "/Game/LostInTheSauce/Characters/Adventurer/Green.Green",
+      "/Game/LostInTheSauce/Characters/Adventurer/LightGreen.LightGreen",
+      "/Game/LostInTheSauce/Characters/Adventurer/Eyebrows.Eyebrows",
+      "/Game/LostInTheSauce/Characters/Adventurer/Hair.Hair",
+      "/Game/LostInTheSauce/Characters/Adventurer/Eye.Eye",
+      "/Game/LostInTheSauce/Characters/Adventurer/Gold.Gold",
+      "/Game/LostInTheSauce/Characters/Adventurer/Adventurer_Skeleton.Adventurer_Skeleton",
+      "/Game/LostInTheSauce/Characters/Adventurer/Adventurer.Adventurer",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Death.AdventurerCharacterArmature_Death",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Gun_Shoot.AdventurerCharacterArmature_Gun_Shoot",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_HitRecieve.AdventurerCharacterArmature_HitRecieve",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_HitRecieve_2.AdventurerCharacterArmature_HitRecieve_2",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle.AdventurerCharacterArmature_Idle",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Gun.AdventurerCharacterArmature_Idle_Gun",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Gun_Pointing.AdventurerCharacterArmature_Idle_Gun_Pointing",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Gun_Shoot.AdventurerCharacterArmature_Idle_Gun_Shoot",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Neutral.AdventurerCharacterArmature_Idle_Neutral",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Sword.AdventurerCharacterArmature_Idle_Sword",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Interact.AdventurerCharacterArmature_Interact",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Kick_Left.AdventurerCharacterArmature_Kick_Left",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Kick_Right.AdventurerCharacterArmature_Kick_Right",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Punch_Left.AdventurerCharacterArmature_Punch_Left",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Punch_Right.AdventurerCharacterArmature_Punch_Right",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Roll.AdventurerCharacterArmature_Roll",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run.AdventurerCharacterArmature_Run",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run_Back.AdventurerCharacterArmature_Run_Back",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run_Left.AdventurerCharacterArmature_Run_Left",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run_Right.AdventurerCharacterArmature_Run_Right",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run_Shoot.AdventurerCharacterArmature_Run_Shoot",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Sword_Slash.AdventurerCharacterArmature_Sword_Slash",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Walk.AdventurerCharacterArmature_Walk",
+      "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Wave.AdventurerCharacterArmature_Wave"
+    ],
     "Farmer": [
-      "/Game/LostInTheSauce/Characters/Farmer/Brown2.Brown2",
       "/Game/LostInTheSauce/Characters/Farmer/Brown.Brown",
+      "/Game/LostInTheSauce/Characters/Farmer/Brown2.Brown2",
       "/Game/LostInTheSauce/Characters/Farmer/LightBlue.LightBlue",
       "/Game/LostInTheSauce/Characters/Farmer/Skin.Skin",
       "/Game/LostInTheSauce/Characters/Farmer/Beige.Beige",
       "/Game/LostInTheSauce/Characters/Farmer/Eyebrows.Eyebrows",
       "/Game/LostInTheSauce/Characters/Farmer/Red.Red",
       "/Game/LostInTheSauce/Characters/Farmer/Eye.Eye",
-      "/Game/LostInTheSauce/Characters/Farmer/Farmer_Skeleton.Farmer_Skeleton",
       "/Game/LostInTheSauce/Characters/Farmer/Farmer.Farmer",
-      "/Game/LostInTheSauce/Characters/Farmer/Farmer_PhysicsAsset.Farmer_PhysicsAsset",
       "/Game/LostInTheSauce/Characters/Farmer/FarmerCharacterArmature_Death.FarmerCharacterArmature_Death",
       "/Game/LostInTheSauce/Characters/Farmer/FarmerCharacterArmature_Gun_Shoot.FarmerCharacterArmature_Gun_Shoot",
       "/Game/LostInTheSauce/Characters/Farmer/FarmerCharacterArmature_HitRecieve.FarmerCharacterArmature_HitRecieve",
@@ -41,15 +78,13 @@
       "/Game/LostInTheSauce/Characters/King/Metal.Metal",
       "/Game/LostInTheSauce/Characters/King/DarkBrown.DarkBrown",
       "/Game/LostInTheSauce/Characters/King/Metal_Dark.Metal_Dark",
+      "/Game/LostInTheSauce/Characters/King/Skin.Skin",
       "/Game/LostInTheSauce/Characters/King/Blue.Blue",
       "/Game/LostInTheSauce/Characters/King/Beige.Beige",
-      "/Game/LostInTheSauce/Characters/King/Skin.Skin",
       "/Game/LostInTheSauce/Characters/King/Hair_White.Hair_White",
-      "/Game/LostInTheSauce/Characters/King/Eye.Eye",
       "/Game/LostInTheSauce/Characters/King/Gold.Gold",
-      "/Game/LostInTheSauce/Characters/King/King_Skeleton.King_Skeleton",
+      "/Game/LostInTheSauce/Characters/King/Eye.Eye",
       "/Game/LostInTheSauce/Characters/King/King.King",
-      "/Game/LostInTheSauce/Characters/King/King_PhysicsAsset.King_PhysicsAsset",
       "/Game/LostInTheSauce/Characters/King/KingCharacterArmature_Death.KingCharacterArmature_Death",
       "/Game/LostInTheSauce/Characters/King/KingCharacterArmature_Gun_Shoot.KingCharacterArmature_Gun_Shoot",
       "/Game/LostInTheSauce/Characters/King/KingCharacterArmature_HitRecieve.KingCharacterArmature_HitRecieve",
@@ -76,15 +111,13 @@
       "/Game/LostInTheSauce/Characters/King/KingCharacterArmature_Wave.KingCharacterArmature_Wave"
     ],
     "Witch": [
-      "/Game/LostInTheSauce/Characters/Witch/Purple.Purple",
       "/Game/LostInTheSauce/Characters/Witch/Skin.Skin",
-      "/Game/LostInTheSauce/Characters/Witch/Gold.Gold",
       "/Game/LostInTheSauce/Characters/Witch/Brown2.Brown2",
-      "/Game/LostInTheSauce/Characters/Witch/Hair_Black.Hair_Black",
+      "/Game/LostInTheSauce/Characters/Witch/Purple.Purple",
+      "/Game/LostInTheSauce/Characters/Witch/Gold.Gold",
       "/Game/LostInTheSauce/Characters/Witch/Brown.Brown",
-      "/Game/LostInTheSauce/Characters/Witch/Witch_Skeleton.Witch_Skeleton",
+      "/Game/LostInTheSauce/Characters/Witch/Hair_Black.Hair_Black",
       "/Game/LostInTheSauce/Characters/Witch/Witch.Witch",
-      "/Game/LostInTheSauce/Characters/Witch/Witch_PhysicsAsset.Witch_PhysicsAsset",
       "/Game/LostInTheSauce/Characters/Witch/WitchCharacterArmature_Death.WitchCharacterArmature_Death",
       "/Game/LostInTheSauce/Characters/Witch/WitchCharacterArmature_Gun_Shoot.WitchCharacterArmature_Gun_Shoot",
       "/Game/LostInTheSauce/Characters/Witch/WitchCharacterArmature_HitRecieve.WitchCharacterArmature_HitRecieve",
@@ -110,58 +143,230 @@
       "/Game/LostInTheSauce/Characters/Witch/WitchCharacterArmature_Walk.WitchCharacterArmature_Walk",
       "/Game/LostInTheSauce/Characters/Witch/WitchCharacterArmature_Wave.WitchCharacterArmature_Wave"
     ],
-    "Adventurer": [
-      "/Game/LostInTheSauce/Characters/Adventurer/Metal.Metal",
-      "/Game/LostInTheSauce/Characters/Adventurer/Brown2.Brown2",
-      "/Game/LostInTheSauce/Characters/Adventurer/Metal_Dark.Metal_Dark",
-      "/Game/LostInTheSauce/Characters/Adventurer/Black.Black",
-      "/Game/LostInTheSauce/Characters/Adventurer/LightBrown.LightBrown",
-      "/Game/LostInTheSauce/Characters/Adventurer/DarkBrown.DarkBrown",
-      "/Game/LostInTheSauce/Characters/Adventurer/Skin.Skin",
-      "/Game/LostInTheSauce/Characters/Adventurer/Gold.Gold",
-      "/Game/LostInTheSauce/Characters/Adventurer/Metal1.Metal1",
-      "/Game/LostInTheSauce/Characters/Adventurer/White.White",
-      "/Game/LostInTheSauce/Characters/Adventurer/Brown.Brown",
-      "/Game/LostInTheSauce/Characters/Adventurer/Medieval_Body_Skeleton.Medieval_Body_Skeleton",
-      "/Game/LostInTheSauce/Characters/Adventurer/Sword.Sword",
-      "/Game/LostInTheSauce/Characters/Adventurer/Medieval_Body.Medieval_Body",
-      "/Game/LostInTheSauce/Characters/Adventurer/Medieval_Body_PhysicsAsset.Medieval_Body_PhysicsAsset",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Death.Hooded_AdventurerCharacterArmature_Death",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Gun_Shoot.Hooded_AdventurerCharacterArmature_Gun_Shoot",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_HitRecieve.Hooded_AdventurerCharacterArmature_HitRecieve",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_HitRecieve_2.Hooded_AdventurerCharacterArmature_HitRecieve_2",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle.Hooded_AdventurerCharacterArmature_Idle",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Gun.Hooded_AdventurerCharacterArmature_Idle_Gun",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Gun_Pointing.Hooded_AdventurerCharacterArmature_Idle_Gun_Pointing",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Gun_Shoot.Hooded_AdventurerCharacterArmature_Idle_Gun_Shoot",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Neutral.Hooded_AdventurerCharacterArmature_Idle_Neutral",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Sword.Hooded_AdventurerCharacterArmature_Idle_Sword",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Interact.Hooded_AdventurerCharacterArmature_Interact",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Kick_Left.Hooded_AdventurerCharacterArmature_Kick_Left",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Kick_Right.Hooded_AdventurerCharacterArmature_Kick_Right",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Punch_Left.Hooded_AdventurerCharacterArmature_Punch_Left",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Punch_Right.Hooded_AdventurerCharacterArmature_Punch_Right",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Roll.Hooded_AdventurerCharacterArmature_Roll",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run.Hooded_AdventurerCharacterArmature_Run",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run_Back.Hooded_AdventurerCharacterArmature_Run_Back",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run_Left.Hooded_AdventurerCharacterArmature_Run_Left",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run_Right.Hooded_AdventurerCharacterArmature_Run_Right",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run_Shoot.Hooded_AdventurerCharacterArmature_Run_Shoot",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Sword_Slash.Hooded_AdventurerCharacterArmature_Sword_Slash",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Walk.Hooded_AdventurerCharacterArmature_Walk",
-      "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Wave.Hooded_AdventurerCharacterArmature_Wave"
+    "Medieval": [
+      "/Game/LostInTheSauce/Characters/Medieval/Skin.Skin",
+      "/Game/LostInTheSauce/Characters/Medieval/DarkBrown.DarkBrown",
+      "/Game/LostInTheSauce/Characters/Medieval/Gold.Gold",
+      "/Game/LostInTheSauce/Characters/Medieval/LightBrown.LightBrown",
+      "/Game/LostInTheSauce/Characters/Medieval/Black.Black",
+      "/Game/LostInTheSauce/Characters/Medieval/Metal.Metal",
+      "/Game/LostInTheSauce/Characters/Medieval/White.White",
+      "/Game/LostInTheSauce/Characters/Medieval/Brown.Brown",
+      "/Game/LostInTheSauce/Characters/Medieval/Metal_Dark.Metal_Dark",
+      "/Game/LostInTheSauce/Characters/Medieval/Brown2.Brown2",
+      "/Game/LostInTheSauce/Characters/Medieval/Medieval.Medieval",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Death.MedievalCharacterArmature_Death",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Gun_Shoot.MedievalCharacterArmature_Gun_Shoot",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_HitRecieve.MedievalCharacterArmature_HitRecieve",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_HitRecieve_2.MedievalCharacterArmature_HitRecieve_2",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle.MedievalCharacterArmature_Idle",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Gun.MedievalCharacterArmature_Idle_Gun",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Gun_Pointing.MedievalCharacterArmature_Idle_Gun_Pointing",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Gun_Shoot.MedievalCharacterArmature_Idle_Gun_Shoot",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Neutral.MedievalCharacterArmature_Idle_Neutral",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Sword.MedievalCharacterArmature_Idle_Sword",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Interact.MedievalCharacterArmature_Interact",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Kick_Left.MedievalCharacterArmature_Kick_Left",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Kick_Right.MedievalCharacterArmature_Kick_Right",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Punch_Left.MedievalCharacterArmature_Punch_Left",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Punch_Right.MedievalCharacterArmature_Punch_Right",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Roll.MedievalCharacterArmature_Roll",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run.MedievalCharacterArmature_Run",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run_Back.MedievalCharacterArmature_Run_Back",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run_Left.MedievalCharacterArmature_Run_Left",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run_Right.MedievalCharacterArmature_Run_Right",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run_Shoot.MedievalCharacterArmature_Run_Shoot",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Sword_Slash.MedievalCharacterArmature_Sword_Slash",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Walk.MedievalCharacterArmature_Walk",
+      "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Wave.MedievalCharacterArmature_Wave"
     ]
   },
   "errors": [],
   "inventory": {
-    "Farmer": [
+    "Adventurer": [
       {
-        "path": "/Game/LostInTheSauce/Characters/Farmer/Farmer",
-        "class": "SkeletalMesh"
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Adventurer",
+        "class": "SkeletalMesh",
+        "size_xyz_cm": [
+          167.5,
+          55.0,
+          185.7
+        ]
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Farmer/Farmer_Skeleton",
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Adventurer_Skeleton",
         "class": "Skeleton"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Death",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Gun_Shoot",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_HitRecieve",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_HitRecieve_2",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Gun",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Gun_Pointing",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Gun_Shoot",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Neutral",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Idle_Sword",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Interact",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Kick_Left",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Kick_Right",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Punch_Left",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Punch_Right",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Roll",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run_Back",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run_Left",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run_Right",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Run_Shoot",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Sword_Slash",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Walk",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/AdventurerCharacterArmature_Wave",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Black",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Brown",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Brown2",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Eye",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Eyebrows",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Gold",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Green",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Grey",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hair",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/LightGreen",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Adventurer/Skin",
+        "class": "MaterialInstanceConstant"
+      }
+    ],
+    "Farmer": [
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/Beige",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/Brown",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/Brown2",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/Eye",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/Eyebrows",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/Farmer",
+        "class": "SkeletalMesh",
+        "size_xyz_cm": [
+          167.5,
+          40.0,
+          185.6
+        ]
       },
       {
         "path": "/Game/LostInTheSauce/Characters/Farmer/FarmerCharacterArmature_Death",
@@ -258,16 +463,53 @@
       {
         "path": "/Game/LostInTheSauce/Characters/Farmer/FarmerCharacterArmature_Wave",
         "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/LightBlue",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/Red",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Farmer/Skin",
+        "class": "MaterialInstanceConstant"
       }
     ],
     "King": [
       {
-        "path": "/Game/LostInTheSauce/Characters/King/King",
-        "class": "SkeletalMesh"
+        "path": "/Game/LostInTheSauce/Characters/King/Beige",
+        "class": "MaterialInstanceConstant"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/King/King_Skeleton",
-        "class": "Skeleton"
+        "path": "/Game/LostInTheSauce/Characters/King/Blue",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/King/DarkBrown",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/King/Eye",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/King/Gold",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/King/Hair_White",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/King/King",
+        "class": "SkeletalMesh",
+        "size_xyz_cm": [
+          167.5,
+          36.5,
+          190.4
+        ]
       },
       {
         "path": "/Game/LostInTheSauce/Characters/King/KingCharacterArmature_Death",
@@ -364,16 +606,53 @@
       {
         "path": "/Game/LostInTheSauce/Characters/King/KingCharacterArmature_Wave",
         "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/King/Metal",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/King/Metal_Dark",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/King/Skin",
+        "class": "MaterialInstanceConstant"
       }
     ],
     "Witch": [
       {
-        "path": "/Game/LostInTheSauce/Characters/Witch/Witch",
-        "class": "SkeletalMesh"
+        "path": "/Game/LostInTheSauce/Characters/Witch/Brown",
+        "class": "MaterialInstanceConstant"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Witch/Witch_Skeleton",
-        "class": "Skeleton"
+        "path": "/Game/LostInTheSauce/Characters/Witch/Brown2",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Witch/Gold",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Witch/Hair_Black",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Witch/Purple",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Witch/Skin",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Witch/Witch",
+        "class": "SkeletalMesh",
+        "size_xyz_cm": [
+          164.9,
+          54.8,
+          204.5
+        ]
       },
       {
         "path": "/Game/LostInTheSauce/Characters/Witch/WitchCharacterArmature_Death",
@@ -472,110 +751,151 @@
         "class": "AnimSequence"
       }
     ],
-    "Adventurer": [
+    "Medieval": [
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Death",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/Black",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/Brown",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/Brown2",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/DarkBrown",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/Gold",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/LightBrown",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/Medieval",
+        "class": "SkeletalMesh",
+        "size_xyz_cm": [
+          164.9,
+          95.7,
+          187.7
+        ]
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Death",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Gun_Shoot",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Gun_Shoot",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_HitRecieve",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_HitRecieve",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_HitRecieve_2",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_HitRecieve_2",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Gun",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Gun",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Gun_Pointing",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Gun_Pointing",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Gun_Shoot",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Gun_Shoot",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Neutral",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Neutral",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Idle_Sword",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Idle_Sword",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Interact",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Interact",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Kick_Left",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Kick_Left",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Kick_Right",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Kick_Right",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Punch_Left",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Punch_Left",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Punch_Right",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Punch_Right",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Roll",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Roll",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run_Back",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run_Back",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run_Left",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run_Left",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run_Right",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run_Right",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Run_Shoot",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Run_Shoot",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Sword_Slash",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Sword_Slash",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Walk",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Walk",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Hooded_AdventurerCharacterArmature_Wave",
+        "path": "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Wave",
         "class": "AnimSequence"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Medieval_Body",
-        "class": "SkeletalMesh"
+        "path": "/Game/LostInTheSauce/Characters/Medieval/Metal",
+        "class": "MaterialInstanceConstant"
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Adventurer/Medieval_Body_Skeleton",
-        "class": "Skeleton"
+        "path": "/Game/LostInTheSauce/Characters/Medieval/Metal_Dark",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/Skin",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Medieval/White",
+        "class": "MaterialInstanceConstant"
       }
     ]
   }
