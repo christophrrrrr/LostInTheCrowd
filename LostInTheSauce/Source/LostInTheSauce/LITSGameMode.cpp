@@ -144,6 +144,21 @@ void ALITSGameMode::TransitionBatchTick()
 		TransitionEndTime = GetWorld()->GetTimeSeconds();
 		UE_LOG(LogTemp, Log, TEXT("Round %d started: find the %s among %d NPCs"),
 			RoundNumber, NPCTypeStyles::Get(TargetType).DisplayName, SpawnedNPCs.Num());
+
+		// Watchdog: if navigation is somehow dead a few seconds into the
+		// round (rebuild race, tile corruption — cause intermittent), force
+		// a full rebuild instead of leaving the crowd frozen.
+		FTimerHandle NavWatchdogHandle;
+		GetWorldTimerManager().SetTimer(NavWatchdogHandle, [this]()
+		{
+			UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
+			FNavLocation Probe;
+			if (NavSystem && !NavSystem->GetRandomReachablePointInRadius(FVector::ZeroVector, 1500.f, Probe))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("LITS: nav probe dead after round start - forcing navigation rebuild"));
+				NavSystem->Build();
+			}
+		}, 3.f, false);
 	}
 }
 

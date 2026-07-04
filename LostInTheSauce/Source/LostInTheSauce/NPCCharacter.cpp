@@ -20,6 +20,9 @@ ANPCCharacter::ANPCCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(30.f, 90.f);
 	// Make sure the click trace (visibility channel) always hits the capsule.
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	// 200 capsules (de)spawning per round transition must never dirty the
+	// dynamic navmesh — tile rebuild storms left whole rounds standing still.
+	GetCapsuleComponent()->SetCanEverAffectNavigation(false);
 
 	// The capsule is the click target; the mesh is display only.
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));

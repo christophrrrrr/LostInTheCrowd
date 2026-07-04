@@ -35,8 +35,14 @@ void ANPCAIController::SetWanderEnabled(bool bEnabled)
 
 void ANPCAIController::PickNewDestination()
 {
-	if (!bWanderEnabled || !GetPawn())
+	if (!bWanderEnabled)
 	{
+		return;
+	}
+	if (!GetPawn())
+	{
+		// Not possessed yet (spawn race) — never give up, just retry.
+		GetWorldTimerManager().SetTimer(IdleTimerHandle, this, &ANPCAIController::PickNewDestination, 2.f, false);
 		return;
 	}
 
@@ -45,7 +51,16 @@ void ANPCAIController::PickNewDestination()
 
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
 	FNavLocation Destination;
-	if (NavSystem && NavSystem->GetRandomReachablePointInRadius(GetPawn()->GetActorLocation(), WanderRadius, Destination))
+	bool bFound = NavSystem &&
+		NavSystem->GetRandomReachablePointInRadius(GetPawn()->GetActorLocation(), WanderRadius, Destination);
+	if (!bFound && NavSystem)
+	{
+		// Pawn may be standing off-mesh (fallback spawn) — route back toward
+		// the market center instead of retrying from a dead spot forever.
+		bFound = NavSystem->GetRandomReachablePointInRadius(FVector::ZeroVector, 1800.f, Destination);
+	}
+
+	if (bFound)
 	{
 		if (!bLoggedNavStatus)
 		{
