@@ -87,6 +87,87 @@ for name, filename, use_donor_skeleton in CHARACTERS:
     except Exception:
         report["errors"].append(f"{name}: import failed\n" + traceback.format_exc())
 
+# --- Knight: Mixamo-rigged, separate anim files --------------------------------
+# The Mixamo rig is self-consistent; import base mesh first, then each clip
+# onto its skeleton, renamed to match the game's _Suffix lookup convention.
+KNIGHT_DIR = f"{DEST}/Knight"
+KNIGHT_ANIMS = [
+    ("KnightIdle.fbx", "Knight_Idle_Neutral"),
+    ("KnightWalking.fbx", "Knight_Walk"),
+    ("KnightWaving.fbx", "Knight_Wave"),
+    ("KinghtHitReaction.fbx", "Knight_HitRecieve"),  # (sic) user's filename
+]
+
+try:
+    ui = unreal.FbxImportUI()
+    ui.set_editor_property("import_mesh", True)
+    ui.set_editor_property("import_as_skeletal", True)
+    ui.set_editor_property("import_animations", False)
+    ui.set_editor_property("import_materials", True)
+    ui.set_editor_property("import_textures", True)
+    ui.set_editor_property("automated_import_should_detect_type", False)
+    ui.set_editor_property("mesh_type_to_import", unreal.FBXImportType.FBXIT_SKELETAL_MESH)
+
+    task = unreal.AssetImportTask()
+    task.filename = os.path.join(ASSETS_DIR, "Knight.fbx")
+    task.destination_path = KNIGHT_DIR
+    task.automated = True
+    task.save = True
+    task.replace_existing = True
+    task.options = ui
+    asset_tools.import_asset_tasks([task])
+    knight_paths = [str(p) for p in task.get_editor_property("imported_object_paths")]
+    report["imported"]["Knight"] = knight_paths
+
+    knight_skeleton = None
+    for path in knight_paths:
+        clean = path.split(".")[0]
+        data = eal.find_asset_data(clean)
+        if data.is_valid() and str(data.asset_class_path.asset_name) == "Skeleton":
+            knight_skeleton = eal.load_asset(clean)
+            break
+
+    if knight_skeleton:
+        for filename, anim_name in KNIGHT_ANIMS:
+            anim_ui = unreal.FbxImportUI()
+            anim_ui.set_editor_property("import_mesh", False)
+            anim_ui.set_editor_property("import_as_skeletal", False)
+            anim_ui.set_editor_property("import_animations", True)
+            anim_ui.set_editor_property("import_materials", False)
+            anim_ui.set_editor_property("import_textures", False)
+            # Mixamo "With Skin" files contain geometry; force animation-only
+            # or auto-detect imports them as static meshes.
+            anim_ui.set_editor_property("automated_import_should_detect_type", False)
+            anim_ui.set_editor_property("mesh_type_to_import", unreal.FBXImportType.FBXIT_ANIMATION)
+            anim_ui.set_editor_property("skeleton", knight_skeleton)
+            # Same 90-degree track roll as the pack anims; counter at import.
+            anim_ui.anim_sequence_import_data.set_editor_property(
+                "import_rotation", unreal.Rotator(-90.0, 0.0, 0.0))
+
+            anim_task = unreal.AssetImportTask()
+            anim_task.filename = os.path.join(ASSETS_DIR, filename)
+            anim_task.destination_path = KNIGHT_DIR
+            anim_task.automated = True
+            anim_task.save = True
+            anim_task.replace_existing = True
+            anim_task.options = anim_ui
+            asset_tools.import_asset_tasks([anim_task])
+
+            for path in [str(p) for p in anim_task.get_editor_property("imported_object_paths")]:
+                clean = path.split(".")[0]
+                data = eal.find_asset_data(clean)
+                if data.is_valid() and str(data.asset_class_path.asset_name) == "AnimSequence":
+                    target = f"{KNIGHT_DIR}/{anim_name}"
+                    if clean != target:
+                        eal.rename_asset(clean, target)
+                    break
+    else:
+        report["errors"].append("Knight: no skeleton found after base import")
+except Exception:
+    report["errors"].append("Knight: import failed\n" + traceback.format_exc())
+
+CHARACTERS.append(("Knight", "Knight.fbx", False))
+
 # Inventory: what actually exists per character folder.
 inventory = {}
 for name, _, _ in CHARACTERS:

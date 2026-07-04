@@ -26,6 +26,9 @@ public:
 	// Target was found: stop wandering and wave at the player.
 	void CelebrateFound();
 
+	// Fresnel rim overlay while the cursor is over this NPC.
+	void SetHighlighted(bool bHighlighted);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -38,6 +41,7 @@ protected:
 
 private:
 	void ApplyMesh();
+	void ApplyCrowdColors();
 	void PlayLooping(UAnimSequence* Anim);
 
 	UPROPERTY()

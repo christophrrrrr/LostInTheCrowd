@@ -24,13 +24,18 @@ void ALITSHUD::DrawHUD()
 	const FString Objective = FString::Printf(TEXT("FIND THE %s"), TargetStyle.DisplayName).ToUpper();
 	DrawCenteredText(Objective, FLinearColor::White, CenterX, 34.f, 2.2f);
 
-	// Color swatch beside the banner as a quick visual cue for the target.
+	DrawText(FString::Printf(TEXT("Round %d"), GameMode->GetRoundNumber()),
+		FLinearColor(1.f, 1.f, 1.f, 0.8f), 24.f, 24.f, GEngine->GetLargeFont(), 1.4f);
+
+	// Color swatch beside the banner — tinted the same way the crowd is, so
+	// the hint stays honest as rounds get more color-similar.
+	const FLinearColor Swatch = FMath::Lerp(TargetStyle.OutfitPrimary,
+		NPCTypeStyles::MutedBase, GameMode->GetColorSimilarity());
 	UFont* Font = GEngine->GetLargeFont();
 	float TextWidth = 0.f, TextHeight = 0.f;
 	GetTextSize(Objective, TextWidth, TextHeight, Font, 2.2f);
 	const float SwatchX = CenterX + TextWidth * 0.5f + 18.f;
-	DrawRect(FLinearColor(TargetStyle.SwatchColor.R, TargetStyle.SwatchColor.G, TargetStyle.SwatchColor.B, 1.f),
-		SwatchX, 40.f, 34.f, 34.f);
+	DrawRect(FLinearColor(Swatch.R, Swatch.G, Swatch.B, 1.f), SwatchX, 40.f, 34.f, 34.f);
 
 	// --- Wrong-click feedback ---------------------------------------------
 	const float SinceWrong = GetWorld()->GetTimeSeconds() - GameMode->GetLastWrongClickTime();
@@ -48,7 +53,8 @@ void ALITSHUD::DrawHUD()
 
 		const FString WinText = FString::Printf(TEXT("YOU FOUND THE %s!"), TargetStyle.DisplayName).ToUpper();
 		DrawCenteredText(WinText, FLinearColor(1.f, 0.85f, 0.3f), CenterX, Canvas->SizeY * 0.42f, 3.f);
-		DrawCenteredText(TEXT("Press R to play again"), FLinearColor::White, CenterX, Canvas->SizeY * 0.42f + 70.f, 1.5f);
+		DrawCenteredText(FString::Printf(TEXT("Press R for round %d"), GameMode->GetRoundNumber() + 1),
+			FLinearColor::White, CenterX, Canvas->SizeY * 0.42f + 70.f, 1.5f);
 	}
 }
 

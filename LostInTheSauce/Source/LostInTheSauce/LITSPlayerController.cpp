@@ -25,16 +25,33 @@ void ALITSPlayerController::PlayerTick(float DeltaTime)
 		return;
 	}
 
-	if (WasInputKeyJustPressed(EKeys::LeftMouseButton))
+	// One cursor trace per frame drives both the hover highlight and clicks.
+	ANPCCharacter* UnderCursor = nullptr;
+	if (!GameMode->IsRoundWon())
 	{
 		FHitResult Hit;
 		if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
 		{
-			if (ANPCCharacter* NPC = Cast<ANPCCharacter>(Hit.GetActor()))
-			{
-				GameMode->HandleNPCClicked(NPC);
-			}
+			UnderCursor = Cast<ANPCCharacter>(Hit.GetActor());
 		}
+	}
+
+	if (UnderCursor != HoveredNPC.Get())
+	{
+		if (HoveredNPC.IsValid())
+		{
+			HoveredNPC->SetHighlighted(false);
+		}
+		HoveredNPC = UnderCursor;
+		if (UnderCursor)
+		{
+			UnderCursor->SetHighlighted(true);
+		}
+	}
+
+	if (WasInputKeyJustPressed(EKeys::LeftMouseButton) && UnderCursor)
+	{
+		GameMode->HandleNPCClicked(UnderCursor);
 	}
 
 	if (WasInputKeyJustPressed(EKeys::R))

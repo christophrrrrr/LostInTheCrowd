@@ -6,6 +6,8 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "LITSGameMode.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/CommandLine.h"
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -23,6 +25,11 @@ ANPCCharacter::ANPCCharacter()
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 	GetMesh()->SetGenerateOverlapEvents(false);
 	GetMesh()->SetCanEverAffectNavigation(false);
+
+	// Crowd-scale perf: skip pose evaluation offscreen and let the engine
+	// reduce anim update rates for distant/many characters.
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	GetMesh()->bEnableUpdateRateOptimizations = true;
 
 	// Walk in the direction of movement instead of following controller yaw.
 	bUseControllerRotationYaw = false;
@@ -165,6 +172,89 @@ void ANPCCharacter::ApplyMesh()
 	IdleAnim = FindAnim(TEXT("_Idle_Neutral"));
 	WaveAnim = FindAnim(TEXT("_Wave"));
 	HitAnim = FindAnim(TEXT("_HitRecieve"));
+
+	ApplyCrowdColors();
+}
+
+void ANPCCharacter::ApplyCrowdColors()
+{
+	static const FLinearColor SkinTones[] = {
+		FLinearColor(0.72f, 0.52f, 0.38f), FLinearColor(0.55f, 0.38f, 0.26f), FLinearColor(0.35f, 0.24f, 0.16f) };
+	static const FLinearColor HairTones[] = {
+		FLinearColor(0.12f, 0.08f, 0.05f), FLinearColor(0.30f, 0.18f, 0.08f), FLinearColor(0.50f, 0.42f, 0.30f) };
+
+	if (!NPCTypeStyles::Get(NPCType).bUseCrowdTint)
+	{
+		return; // foreign rig with its own texture look (Knight)
+	}
+
+	UMaterialInterface* BaseMaterial = LoadObject<UMaterialInterface>(nullptr,
+		TEXT("/Game/LostInTheSauce/Materials/M_NPCColor"));
+	USkeletalMesh* SkeletalMesh = GetMesh()->GetSkeletalMeshAsset();
+	if (!BaseMaterial || !SkeletalMesh)
+	{
+		return; // material script not run yet — keep imported colors
+	}
+
+	float Similarity = 0.3f;
+	if (const ALITSGameMode* GameMode = GetWorld()->GetAuthGameMode<ALITSGameMode>())
+	{
+		Similarity = GameMode->GetColorSimilarity();
+	}
+
+	const FNPCTypeStyle& Style = NPCTypeStyles::Get(NPCType);
+	const FLinearColor Skin = SkinTones[FMath::RandRange(0, 2)];
+	const FLinearColor Hair = HairTones[FMath::RandRange(0, 2)];
+	// Small per-NPC brightness wobble so even same-type outfits aren't clones.
+	const float Jitter = FMath::FRandRange(0.88f, 1.12f);
+
+	const TArray<FSkeletalMaterial>& Slots = SkeletalMesh->GetMaterials();
+	for (int32 SlotIndex = 0; SlotIndex < Slots.Num(); ++SlotIndex)
+	{
+		const FString SlotName = Slots[SlotIndex].MaterialSlotName.ToString();
+
+		FLinearColor Color;
+		if (SlotName.Contains(TEXT("Skin")))
+		{
+			Color = Skin;
+		}
+		else if (SlotName.Contains(TEXT("Eyebrow")) || SlotName.Contains(TEXT("Hair")))
+		{
+			Color = Hair;
+		}
+		else if (SlotName.Contains(TEXT("Eye")))
+		{
+			Color = FLinearColor(0.05f, 0.04f, 0.03f);
+		}
+		else if (SlotName.Contains(TEXT("Gold")))
+		{
+			Color = FLinearColor(0.75f, 0.60f, 0.20f);
+		}
+		else if (SlotName.Contains(TEXT("Metal")) || SlotName.Contains(TEXT("Sword")))
+		{
+			Color = FLinearColor(0.50f, 0.52f, 0.55f);
+		}
+		else
+		{
+			// Clothing: alternate the type's signature colors across slots,
+			// then converge toward the shared muted base per difficulty.
+			const FLinearColor Signature = (GetTypeHash(SlotName) % 2 == 0)
+				? Style.OutfitPrimary : Style.OutfitSecondary;
+			Color = FMath::Lerp(Signature, NPCTypeStyles::MutedBase, Similarity) * Jitter;
+		}
+
+		UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(BaseMaterial, this);
+		MID->SetVectorParameterValue(TEXT("Color"), Color);
+		GetMesh()->SetMaterial(SlotIndex, MID);
+	}
+}
+
+void ANPCCharacter::SetHighlighted(bool bHighlighted)
+{
+	UMaterialInterface* HighlightMaterial = bHighlighted
+		? LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/LostInTheSauce/Materials/M_Highlight"))
+		: nullptr;
+	GetMesh()->SetOverlayMaterial(HighlightMaterial);
 }
 
 void ANPCCharacter::Tick(float DeltaSeconds)

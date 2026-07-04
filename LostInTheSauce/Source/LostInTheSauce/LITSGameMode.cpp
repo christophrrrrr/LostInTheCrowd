@@ -45,6 +45,9 @@ void ALITSGameMode::BeginPlay()
 		{
 			if (SpawnedNPCs.Num() > 0 && IsValid(SpawnedNPCs[0]))
 			{
+				// Freeze + wave so the capture reliably frames the target
+				// (and exercises the celebration animation).
+				SpawnedNPCs[0]->CelebrateFound();
 				const FVector Target = SpawnedNPCs[0]->GetActorLocation();
 				const FVector CamLoc = Target + FVector(-260.f, 0.f, 130.f);
 				ACameraActor* Cam = GetWorld()->SpawnActor<ACameraActor>(CamLoc, (Target - CamLoc).Rotation());
@@ -90,7 +93,8 @@ void ALITSGameMode::StartRound()
 		}
 	}
 
-	for (int32 i = 0; i < NPCCount; ++i)
+	const int32 CrowdSize = GetCrowdSize();
+	for (int32 i = 0; i < CrowdSize; ++i)
 	{
 		// Exactly one NPC of the target type per round: the first one spawned.
 		ENPCType Type;
@@ -165,6 +169,9 @@ bool ALITSGameMode::FindSpawnPoint(FVector& OutLocation) const
 void ALITSGameMode::DumpDiagnostics()
 {
 	UE_LOG(LogTemp, Log, TEXT("LITS-DIAG ======================================"));
+	extern ENGINE_API float GAverageFPS;
+	UE_LOG(LogTemp, Log, TEXT("LITS-DIAG avgFPS=%.1f round=%d similarity=%.2f"),
+		GAverageFPS, RoundNumber, GetColorSimilarity());
 
 	if (const APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
@@ -264,6 +271,17 @@ void ALITSGameMode::RequestRestart()
 {
 	if (bRoundWon)
 	{
+		++RoundNumber;
 		StartRound();
 	}
+}
+
+float ALITSGameMode::GetColorSimilarity() const
+{
+	return FMath::Clamp(0.30f + 0.08f * (RoundNumber - 1), 0.30f, 0.80f);
+}
+
+int32 ALITSGameMode::GetCrowdSize() const
+{
+	return FMath::Min(BaseNPCCount + (RoundNumber - 1) * 8, MaxNPCCount);
 }

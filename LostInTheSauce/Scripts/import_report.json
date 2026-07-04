@@ -179,6 +179,12 @@
       "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Sword_Slash.MedievalCharacterArmature_Sword_Slash",
       "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Walk.MedievalCharacterArmature_Walk",
       "/Game/LostInTheSauce/Characters/Medieval/MedievalCharacterArmature_Wave.MedievalCharacterArmature_Wave"
+    ],
+    "Knight": [
+      "/Game/LostInTheSauce/Characters/Knight/sonic-robo-blast-2-v22-32x.sonic-robo-blast-2-v22-32x",
+      "/Game/LostInTheSauce/Characters/Knight/Knight_Skeleton.Knight_Skeleton",
+      "/Game/LostInTheSauce/Characters/Knight/Knight.Knight",
+      "/Game/LostInTheSauce/Characters/Knight/Knight1.Knight1"
     ]
   },
   "errors": [],
@@ -896,6 +902,45 @@
       {
         "path": "/Game/LostInTheSauce/Characters/Medieval/White",
         "class": "MaterialInstanceConstant"
+      }
+    ],
+    "Knight": [
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/Knight",
+        "class": "MaterialInstanceConstant"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/Knight1",
+        "class": "SkeletalMesh",
+        "size_xyz_cm": [
+          490.9,
+          101.9,
+          472.8
+        ]
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_HitRecieve",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_Idle_Neutral",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_Skeleton",
+        "class": "Skeleton"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_Walk",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_Wave",
+        "class": "AnimSequence"
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/sonic-robo-blast-2-v22-32x",
+        "class": "Texture2D"
       }
     ]
   }

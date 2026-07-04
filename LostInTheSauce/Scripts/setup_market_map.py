@@ -90,7 +90,10 @@ fog_comp.set_editor_property("start_distance", 2000.0)
 
 skylight = find_by_label("SkyLight") or spawn(unreal.SkyLight, "SkyLight", (0, 0, 500))
 skylight_comp = skylight.get_component_by_class(unreal.SkyLightComponent)
-skylight_comp.set_editor_property("real_time_capture", True)
+# Real-time capture costs GPU every frame; a one-off capture is fine for a
+# static time of day (and required now that Lumen is off).
+skylight_comp.set_editor_property("real_time_capture", False)
+skylight_comp.recapture_sky()
 
 # Clamp auto-exposure to daylight values so the white graybox doesn't blow out.
 ppv = find_by_label("ExposureVolume") or spawn(unreal.PostProcessVolume, "ExposureVolume", (0, 0, 0))
@@ -152,6 +155,47 @@ if "NavBounds" not in labels:
 # --- Player start (orbit camera spawns here, at market center) ---------------
 if "MarketPlayerStart" not in labels:
     spawn(unreal.PlayerStart, "MarketPlayerStart", (0, 0, 300))
+
+# --- Gameplay materials (idempotent) ------------------------------------------
+MAT_DIR = "/Game/LostInTheSauce/Materials"
+if not eal.does_directory_exist(MAT_DIR):
+    eal.make_directory(MAT_DIR)
+
+asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
+mel = unreal.MaterialEditingLibrary
+
+# M_NPCColor: one flat-color parameterized material that C++ instances per
+# NPC material slot — full control over crowd colors for the difficulty tint.
+if not eal.does_asset_exist(f"{MAT_DIR}/M_NPCColor"):
+    npc_mat = asset_tools.create_asset("M_NPCColor", MAT_DIR, unreal.Material,
+                                       unreal.MaterialFactoryNew())
+    color = mel.create_material_expression(npc_mat, unreal.MaterialExpressionVectorParameter, -400, 0)
+    color.set_editor_property("parameter_name", "Color")
+    color.set_editor_property("default_value", unreal.LinearColor(0.5, 0.5, 0.5, 1.0))
+    mel.connect_material_property(color, "", unreal.MaterialProperty.MP_BASE_COLOR)
+    rough = mel.create_material_expression(npc_mat, unreal.MaterialExpressionConstant, -400, 300)
+    rough.set_editor_property("r", 0.85)
+    mel.connect_material_property(rough, "", unreal.MaterialProperty.MP_ROUGHNESS)
+    mel.recompile_material(npc_mat)
+    log("Created M_NPCColor")
+
+# M_Highlight: additive fresnel rim used as OverlayMaterial on the hovered NPC.
+if not eal.does_asset_exist(f"{MAT_DIR}/M_Highlight"):
+    hl_mat = asset_tools.create_asset("M_Highlight", MAT_DIR, unreal.Material,
+                                      unreal.MaterialFactoryNew())
+    hl_mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_ADDITIVE)
+    hl_mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
+    fresnel = mel.create_material_expression(hl_mat, unreal.MaterialExpressionFresnel, -600, 0)
+    fresnel.set_editor_property("exponent", 3.0)
+    tint = mel.create_material_expression(hl_mat, unreal.MaterialExpressionVectorParameter, -600, 250)
+    tint.set_editor_property("parameter_name", "Color")
+    tint.set_editor_property("default_value", unreal.LinearColor(1.0, 0.85, 0.2, 1.0))
+    mul = mel.create_material_expression(hl_mat, unreal.MaterialExpressionMultiply, -350, 100)
+    mel.connect_material_expressions(fresnel, "", mul, "A")
+    mel.connect_material_expressions(tint, "", mul, "B")
+    mel.connect_material_property(mul, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    mel.recompile_material(hl_mat)
+    log("Created M_Highlight")
 
 # --- Rebuild navigation and save ---------------------------------------------
 world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
