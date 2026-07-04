@@ -187,7 +187,9 @@
       "/Game/LostInTheSauce/Characters/Knight/Knight1.Knight1"
     ]
   },
-  "errors": [],
+  "errors": [
+    "Knight: import failed\nTraceback (most recent call last):\n  File \"C:/Users/HP/Desktop/unreal_engine/LostInTheSauce/LostInTheSauce/Scripts/import_characters.py\", line 154, in <module>\n    asset_tools.import_asset_tasks([anim_task])\nRuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: IKTarget_R_end_end\n  RuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: IKTarget_R\n    RuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: IKLegPole_R_end_end\n      RuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: IKLegPole_R\n        RuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: IKTarget_L_end_end\n          RuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: IKTarget_L\n            RuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: IKLegPole_L_end_end\n              RuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: IKLegPole_L\n                RuntimeError: AssetTools: /Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim : Unable to retrieve bone index for track: Armature\n"
+  ],
   "inventory": {
     "Adventurer": [
       {
@@ -906,6 +908,19 @@
     ],
     "Knight": [
       {
+        "path": "/Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle",
+        "class": "SkeletalMesh",
+        "size_xyz_cm": [
+          490.9,
+          101.9,
+          472.8
+        ]
+      },
+      {
+        "path": "/Game/LostInTheSauce/Characters/Knight/_AnimScratch/KnightIdle_Anim",
+        "class": "AnimSequence"
+      },
+      {
         "path": "/Game/LostInTheSauce/Characters/Knight/Knight",
         "class": "MaterialInstanceConstant"
       },
@@ -919,24 +934,8 @@
         ]
       },
       {
-        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_HitRecieve",
-        "class": "AnimSequence"
-      },
-      {
-        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_Idle_Neutral",
-        "class": "AnimSequence"
-      },
-      {
         "path": "/Game/LostInTheSauce/Characters/Knight/Knight_Skeleton",
         "class": "Skeleton"
-      },
-      {
-        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_Walk",
-        "class": "AnimSequence"
-      },
-      {
-        "path": "/Game/LostInTheSauce/Characters/Knight/Knight_Wave",
-        "class": "AnimSequence"
       },
       {
         "path": "/Game/LostInTheSauce/Characters/Knight/sonic-robo-blast-2-v22-32x",

@@ -1,6 +1,7 @@
 #include "OrbitCameraPawn.h"
 
 #include "Camera/CameraComponent.h"
+#include "Framework/Application/SlateApplication.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -33,34 +34,31 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		return;
 	}
 
-	// GetInputMouseDelta reads zero while the cursor is visible, so orbit by
-	// anchoring the cursor: measure how far it moved from the anchor each
-	// frame, apply that as rotation, then pin it back to the anchor.
-	if (PC->IsInputKeyDown(EKeys::RightMouseButton))
+	// Orbit by anchoring the OS cursor (Slate reads/writes desktop
+	// coordinates directly). This is deliberately independent of viewport
+	// capture and input-mode state, which desync after clicks/zooms and
+	// killed earlier implementations of this drag.
+	if (PC->IsInputKeyDown(EKeys::RightMouseButton) && FSlateApplication::IsInitialized())
 	{
-		float MouseX = 0.f, MouseY = 0.f;
-		if (PC->GetMousePosition(MouseX, MouseY))
+		FSlateApplication& Slate = FSlateApplication::Get();
+		const FVector2D CursorPos = Slate.GetCursorPos();
+		if (!bDragging)
 		{
-			if (!bDragging)
-			{
-				bDragging = true;
-				DragAnchor = FVector2D(MouseX, MouseY);
-				PC->bShowMouseCursor = false;
-			}
-			else
-			{
-				const FVector2D Delta = FVector2D(MouseX, MouseY) - DragAnchor;
-				AddActorWorldRotation(FRotator(0.f, Delta.X * RotateSpeed, 0.f));
-				PitchDegrees = FMath::Clamp(PitchDegrees - Delta.Y * RotateSpeed, -80.f, -20.f);
-				SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
-				PC->SetMouseLocation(static_cast<int32>(DragAnchor.X), static_cast<int32>(DragAnchor.Y));
-			}
+			bDragging = true;
+			DragAnchor = CursorPos;
+		}
+		else
+		{
+			const FVector2D Delta = CursorPos - DragAnchor;
+			AddActorWorldRotation(FRotator(0.f, Delta.X * RotateSpeed, 0.f));
+			PitchDegrees = FMath::Clamp(PitchDegrees - Delta.Y * RotateSpeed, -80.f, -20.f);
+			SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
+			Slate.SetCursorPos(DragAnchor);
 		}
 	}
-	else if (bDragging)
+	else
 	{
 		bDragging = false;
-		PC->bShowMouseCursor = true;
 	}
 
 	if (PC->WasInputKeyJustPressed(EKeys::MouseScrollUp))

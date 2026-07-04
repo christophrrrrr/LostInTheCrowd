@@ -12,7 +12,13 @@ ALITSPlayerController::ALITSPlayerController()
 void ALITSPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	SetInputMode(FInputModeGameOnly());
+	// Game-and-UI keeps the cursor free and click/scroll routing stable no
+	// matter how often the player clicks; GameOnly mode kept wedging the
+	// viewport into a captured state that ate the right-drag.
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(false);
+	SetInputMode(InputMode);
 }
 
 void ALITSPlayerController::PlayerTick(float DeltaTime)

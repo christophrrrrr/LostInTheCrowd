@@ -129,24 +129,24 @@ try:
 
     if knight_skeleton:
         for filename, anim_name in KNIGHT_ANIMS:
+            # Import each clip PAIRED with its mesh (the only pipeline whose
+            # orientation handling is proven correct — anim-only imports
+            # silently ignore rotation fixups). The duplicate geometry gets
+            # deleted right after; only the AnimSequence survives.
+            scratch_dir = f"{KNIGHT_DIR}/_AnimScratch"
             anim_ui = unreal.FbxImportUI()
-            anim_ui.set_editor_property("import_mesh", False)
-            anim_ui.set_editor_property("import_as_skeletal", False)
+            anim_ui.set_editor_property("import_mesh", True)
+            anim_ui.set_editor_property("import_as_skeletal", True)
             anim_ui.set_editor_property("import_animations", True)
             anim_ui.set_editor_property("import_materials", False)
             anim_ui.set_editor_property("import_textures", False)
-            # Mixamo "With Skin" files contain geometry; force animation-only
-            # or auto-detect imports them as static meshes.
             anim_ui.set_editor_property("automated_import_should_detect_type", False)
-            anim_ui.set_editor_property("mesh_type_to_import", unreal.FBXImportType.FBXIT_ANIMATION)
+            anim_ui.set_editor_property("mesh_type_to_import", unreal.FBXImportType.FBXIT_SKELETAL_MESH)
             anim_ui.set_editor_property("skeleton", knight_skeleton)
-            # Same 90-degree track roll as the pack anims; counter at import.
-            anim_ui.anim_sequence_import_data.set_editor_property(
-                "import_rotation", unreal.Rotator(-90.0, 0.0, 0.0))
 
             anim_task = unreal.AssetImportTask()
             anim_task.filename = os.path.join(ASSETS_DIR, filename)
-            anim_task.destination_path = KNIGHT_DIR
+            anim_task.destination_path = scratch_dir
             anim_task.automated = True
             anim_task.save = True
             anim_task.replace_existing = True
@@ -157,10 +157,12 @@ try:
                 clean = path.split(".")[0]
                 data = eal.find_asset_data(clean)
                 if data.is_valid() and str(data.asset_class_path.asset_name) == "AnimSequence":
-                    target = f"{KNIGHT_DIR}/{anim_name}"
-                    if clean != target:
-                        eal.rename_asset(clean, target)
+                    eal.rename_asset(clean, f"{KNIGHT_DIR}/{anim_name}")
                     break
+
+        # Drop the scratch meshes; the clips have been moved out already.
+        if eal.does_directory_exist(f"{KNIGHT_DIR}/_AnimScratch"):
+            eal.delete_directory(f"{KNIGHT_DIR}/_AnimScratch")
     else:
         report["errors"].append("Knight: no skeleton found after base import")
 except Exception:
