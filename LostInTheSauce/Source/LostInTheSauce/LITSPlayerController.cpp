@@ -33,7 +33,7 @@ void ALITSPlayerController::PlayerTick(float DeltaTime)
 
 	// One cursor trace per frame drives both the hover highlight and clicks.
 	ANPCCharacter* UnderCursor = nullptr;
-	if (!GameMode->IsRoundWon())
+	if (GameMode->IsPlaying())
 	{
 		FHitResult Hit;
 		if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))

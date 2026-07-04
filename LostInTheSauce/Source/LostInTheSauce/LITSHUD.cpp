@@ -56,6 +56,25 @@ void ALITSHUD::DrawHUD()
 		DrawCenteredText(FString::Printf(TEXT("Press R for round %d"), GameMode->GetRoundNumber() + 1),
 			FLinearColor::White, CenterX, Canvas->SizeY * 0.42f + 70.f, 1.5f);
 	}
+
+	// --- Round transition curtain (drawn on top of everything) --------------
+	const float Now = GetWorld()->GetTimeSeconds();
+	float CurtainAlpha = 0.f;
+	if (GameMode->GetFlow() == ERoundFlow::Transition)
+	{
+		CurtainAlpha = FMath::Min(0.9f, (Now - GameMode->GetTransitionStartTime()) * 3.f);
+	}
+	else
+	{
+		CurtainAlpha = FMath::Max(0.f, 0.9f - (Now - GameMode->GetTransitionEndTime()) * 3.f);
+	}
+	if (CurtainAlpha > 0.01f)
+	{
+		DrawRect(FLinearColor(0.02f, 0.015f, 0.01f, CurtainAlpha), 0.f, 0.f, Canvas->SizeX, Canvas->SizeY);
+		const float TextAlpha = CurtainAlpha / 0.9f;
+		DrawCenteredText(FString::Printf(TEXT("ROUND %d"), GameMode->GetRoundNumber()),
+			FLinearColor(1.f, 0.85f, 0.3f, TextAlpha), CenterX, Canvas->SizeY * 0.44f, 3.5f);
+	}
 }
 
 void ALITSHUD::DrawCenteredText(const FString& Text, const FLinearColor& Color, float CenterX, float Y, float Scale)

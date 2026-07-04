@@ -11,7 +11,6 @@ enum class ENPCType : uint8
 	Witch,
 	Adventurer,
 	Squire,
-	Knight,
 
 	Count UMETA(Hidden)
 };
@@ -31,9 +30,6 @@ struct FNPCTypeStyle
 	const TCHAR* MeshPath;
 	FLinearColor OutfitPrimary;  // also drives the HUD swatch
 	FLinearColor OutfitSecondary;
-	// The pack rigs share slot naming (Skin/Hair/Metal/...) that the crowd
-	// tint system maps; foreign models (Mixamo knight) keep their textures.
-	bool bUseCrowdTint = true;
 };
 
 namespace NPCTypeStyles
@@ -46,7 +42,6 @@ namespace NPCTypeStyles
 			{ TEXT("Witch"),      TEXT("/Game/LostInTheSauce/Characters/Witch/Witch"),           FLinearColor(0.45f, 0.20f, 0.60f), FLinearColor(0.25f, 0.18f, 0.12f) },
 			{ TEXT("Adventurer"), TEXT("/Game/LostInTheSauce/Characters/Adventurer/Adventurer"), FLinearColor(0.40f, 0.30f, 0.20f), FLinearColor(0.35f, 0.38f, 0.20f) },
 			{ TEXT("Squire"),     TEXT("/Game/LostInTheSauce/Characters/Medieval/Medieval"),     FLinearColor(0.70f, 0.40f, 0.20f), FLinearColor(0.80f, 0.75f, 0.60f) },
-			{ TEXT("Knight"),     TEXT("/Game/LostInTheSauce/Characters/Knight/Knight1"),        FLinearColor(0.55f, 0.58f, 0.65f), FLinearColor(0.30f, 0.32f, 0.36f), false },
 		};
 		return Styles[FMath::Clamp(static_cast<int32>(Type), 0, NPCTypeCount - 1)];
 	}

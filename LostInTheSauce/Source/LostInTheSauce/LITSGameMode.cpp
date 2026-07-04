@@ -26,7 +26,7 @@ ALITSGameMode::ALITSGameMode()
 void ALITSGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	StartRound();
+	StartRoundTransition();
 
 	// Dev loop: -LITSAutoShot lets automation capture a rendered frame plus a
 	// diagnostics dump and exit, so visual changes can be verified without a
@@ -71,11 +71,15 @@ void ALITSGameMode::BeginPlay()
 	}
 }
 
-void ALITSGameMode::StartRound()
+void ALITSGameMode::StartRoundTransition()
 {
-	ClearRound();
+	Flow = ERoundFlow::Transition;
+	TransitionStartTime = GetWorld()->GetTimeSeconds();
 
-	bRoundWon = false;
+	// Old crowd goes into the destroy queue; both queues drain in batches.
+	PendingDestroy.Append(SpawnedNPCs);
+	SpawnedNPCs.Empty();
+
 	TargetType = static_cast<ENPCType>(FMath::RandRange(0, NPCTypeCount - 1));
 
 	// Dev: -LITSForceTarget=<DisplayName> pins the round target (and thereby
@@ -93,61 +97,78 @@ void ALITSGameMode::StartRound()
 		}
 	}
 
+	// Exactly one NPC of the target type per round. The batch ticker pops
+	// from the END of this array, so the target goes last = spawns first
+	// (SpawnedNPCs[0] must be the target for the AutoShot close-up).
+	PendingSpawnTypes.Reset();
 	const int32 CrowdSize = GetCrowdSize();
-	for (int32 i = 0; i < CrowdSize; ++i)
+	for (int32 i = 1; i < CrowdSize; ++i)
 	{
-		// Exactly one NPC of the target type per round: the first one spawned.
-		ENPCType Type;
-		if (i == 0)
+		int32 Pick = FMath::RandRange(0, NPCTypeCount - 2);
+		if (Pick >= static_cast<int32>(TargetType))
 		{
-			Type = TargetType;
+			++Pick;
 		}
-		else
-		{
-			int32 Pick = FMath::RandRange(0, NPCTypeCount - 2);
-			if (Pick >= static_cast<int32>(TargetType))
-			{
-				++Pick;
-			}
-			Type = static_cast<ENPCType>(Pick);
-		}
-
-		FVector SpawnLocation;
-		if (!FindSpawnPoint(SpawnLocation))
-		{
-			continue;
-		}
-
-		FActorSpawnParameters Params;
-		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-		ANPCCharacter* NPC = GetWorld()->SpawnActor<ANPCCharacter>(
-			ANPCCharacter::StaticClass(),
-			SpawnLocation + FVector(0.f, 0.f, 92.f),
-			FRotator(0.f, FMath::FRandRange(0.f, 360.f), 0.f),
-			Params);
-
-		if (NPC)
-		{
-			NPC->SetNPCType(Type);
-			SpawnedNPCs.Add(NPC);
-		}
+		PendingSpawnTypes.Add(static_cast<ENPCType>(Pick));
 	}
+	PendingSpawnTypes.Add(TargetType);
 
-	UE_LOG(LogTemp, Log, TEXT("Round started: find the %s among %d NPCs"),
-		NPCTypeStyles::Get(TargetType).DisplayName, SpawnedNPCs.Num());
+	GetWorldTimerManager().SetTimer(BatchTimerHandle, this, &ALITSGameMode::TransitionBatchTick, 0.05f, true);
 }
 
-void ALITSGameMode::ClearRound()
+void ALITSGameMode::TransitionBatchTick()
 {
-	for (ANPCCharacter* NPC : SpawnedNPCs)
+	int32 Budget = BatchSize;
+
+	while (Budget > 0 && PendingDestroy.Num() > 0)
 	{
+		ANPCCharacter* NPC = PendingDestroy.Pop();
 		if (IsValid(NPC))
 		{
 			NPC->Destroy();
+			--Budget;
 		}
 	}
-	SpawnedNPCs.Empty();
+
+	while (Budget > 0 && PendingSpawnTypes.Num() > 0)
+	{
+		SpawnOneNPC(PendingSpawnTypes.Pop());
+		--Budget;
+	}
+
+	const float Elapsed = GetWorld()->GetTimeSeconds() - TransitionStartTime;
+	if (PendingDestroy.Num() == 0 && PendingSpawnTypes.Num() == 0 && Elapsed >= TransitionMinSeconds)
+	{
+		GetWorldTimerManager().ClearTimer(BatchTimerHandle);
+		Flow = ERoundFlow::Playing;
+		TransitionEndTime = GetWorld()->GetTimeSeconds();
+		UE_LOG(LogTemp, Log, TEXT("Round %d started: find the %s among %d NPCs"),
+			RoundNumber, NPCTypeStyles::Get(TargetType).DisplayName, SpawnedNPCs.Num());
+	}
+}
+
+void ALITSGameMode::SpawnOneNPC(ENPCType Type)
+{
+	FVector SpawnLocation;
+	if (!FindSpawnPoint(SpawnLocation))
+	{
+		return;
+	}
+
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	ANPCCharacter* NPC = GetWorld()->SpawnActor<ANPCCharacter>(
+		ANPCCharacter::StaticClass(),
+		SpawnLocation + FVector(0.f, 0.f, 92.f),
+		FRotator(0.f, FMath::FRandRange(0.f, 360.f), 0.f),
+		Params);
+
+	if (NPC)
+	{
+		NPC->SetNPCType(Type);
+		SpawnedNPCs.Add(NPC);
+	}
 }
 
 bool ALITSGameMode::FindSpawnPoint(FVector& OutLocation) const
@@ -250,14 +271,14 @@ void ALITSGameMode::DumpDiagnostics()
 
 void ALITSGameMode::HandleNPCClicked(ANPCCharacter* NPC)
 {
-	if (bRoundWon || !NPC)
+	if (Flow != ERoundFlow::Playing || !NPC)
 	{
 		return;
 	}
 
 	if (NPC->GetNPCType() == TargetType)
 	{
-		bRoundWon = true;
+		Flow = ERoundFlow::Won;
 		NPC->CelebrateFound();
 	}
 	else
@@ -269,10 +290,10 @@ void ALITSGameMode::HandleNPCClicked(ANPCCharacter* NPC)
 
 void ALITSGameMode::RequestRestart()
 {
-	if (bRoundWon)
+	if (Flow == ERoundFlow::Won)
 	{
 		++RoundNumber;
-		StartRound();
+		StartRoundTransition();
 	}
 }
 

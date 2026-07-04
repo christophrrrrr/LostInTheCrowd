@@ -97,21 +97,20 @@ void ANPCCharacter::ApplyMesh()
 	}
 
 	GetMesh()->SetSkeletalMesh(SkeletalMesh);
-	// The auto-generated physics assets inherit the broken import scale and
-	// corrupt the component bounds we calibrate against. No ragdolls needed.
+	// The auto-generated physics assets corrupt component bounds. No ragdolls.
 	GetMesh()->SetPhysicsAsset(nullptr, true);
 
 #if WITH_EDITOR
-	// Pin every bone INCLUDING the root to the skeleton's own proportions:
-	// the pack's animation tracks carry root orientation/translation that
-	// tips characters over and stretches limbs. Animations then drive
-	// rotation only, which is all this low-poly pack needs.
+	// GLB-era relic REMOVED: pinning bone translations to the skeleton froze
+	// the feet (this pack bakes foot translation keys, IK-style), stretching
+	// them whenever legs moved. FBX units are consistent, so animation
+	// translations play raw and feet track properly.
 	if (USkeleton* Skeleton = SkeletalMesh->GetSkeleton())
 	{
 		const int32 NumBones = Skeleton->GetReferenceSkeleton().GetNum();
 		for (int32 BoneIndex = 0; BoneIndex < NumBones; ++BoneIndex)
 		{
-			Skeleton->SetBoneTranslationRetargetingMode(BoneIndex, EBoneTranslationRetargetingMode::Skeleton);
+			Skeleton->SetBoneTranslationRetargetingMode(BoneIndex, EBoneTranslationRetargetingMode::Animation);
 		}
 	}
 #endif
@@ -182,11 +181,6 @@ void ANPCCharacter::ApplyCrowdColors()
 		FLinearColor(0.72f, 0.52f, 0.38f), FLinearColor(0.55f, 0.38f, 0.26f), FLinearColor(0.35f, 0.24f, 0.16f) };
 	static const FLinearColor HairTones[] = {
 		FLinearColor(0.12f, 0.08f, 0.05f), FLinearColor(0.30f, 0.18f, 0.08f), FLinearColor(0.50f, 0.42f, 0.30f) };
-
-	if (!NPCTypeStyles::Get(NPCType).bUseCrowdTint)
-	{
-		return; // foreign rig with its own texture look (Knight)
-	}
 
 	UMaterialInterface* BaseMaterial = LoadObject<UMaterialInterface>(nullptr,
 		TEXT("/Game/LostInTheSauce/Materials/M_NPCColor"));
