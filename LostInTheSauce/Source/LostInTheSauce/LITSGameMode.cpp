@@ -278,7 +278,9 @@ void ALITSGameMode::RequestRestart()
 
 float ALITSGameMode::GetColorSimilarity() const
 {
-	return FMath::Clamp(0.30f + 0.08f * (RoundNumber - 1), 0.30f, 0.80f);
+	// Round 1 keeps signature colors popping; by round ~9 the crowd has
+	// converged into look-alike mud.
+	return FMath::Clamp(0.12f + 0.085f * (RoundNumber - 1), 0.12f, 0.80f);
 }
 
 int32 ALITSGameMode::GetCrowdSize() const

@@ -41,6 +41,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Orbit")
 	float MaxZoom = 4200.f;
 
+	UPROPERTY(EditAnywhere, Category = "Orbit")
+	float PanSpeed = 1600.f; // cm/s at default zoom, scales with zoom level
+
+	UPROPERTY(EditAnywhere, Category = "Orbit")
+	float PanLimit = 2100.f; // keeps the pivot inside the market walls
+
 private:
 	float TargetArmLength = 2600.f;
 	float PitchDegrees = -55.f;

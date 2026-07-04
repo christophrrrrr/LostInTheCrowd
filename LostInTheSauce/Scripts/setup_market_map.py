@@ -79,6 +79,9 @@ sun_comp = sun.get_component_by_class(unreal.DirectionalLightComponent)
 sun_comp.set_editor_property("atmosphere_sun_light", True)
 # Physical daylight (lux) so the EV100 exposure clamp below lands correctly.
 sun_comp.set_editor_property("intensity", 50000.0)
+# Slight golden-hour warmth. NOTE: unreal.Color positional args are B,G,R,A —
+# use named args or you get a blue sun.
+sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=240, b=214, a=255))
 
 if not find_by_label("Sky"):
     spawn(unreal.SkyAtmosphere, "Sky", (0, 0, 0))
@@ -90,10 +93,10 @@ fog_comp.set_editor_property("start_distance", 2000.0)
 
 skylight = find_by_label("SkyLight") or spawn(unreal.SkyLight, "SkyLight", (0, 0, 500))
 skylight_comp = skylight.get_component_by_class(unreal.SkyLightComponent)
-# Real-time capture costs GPU every frame; a one-off capture is fine for a
-# static time of day (and required now that Lumen is off).
-skylight_comp.set_editor_property("real_time_capture", False)
-skylight_comp.recapture_sky()
+# Real-time capture back ON: the one-off capture ran before the atmosphere
+# was ready and baked a near-black ambient, flattening the whole scene.
+# Cost on this scene is negligible.
+skylight_comp.set_editor_property("real_time_capture", True)
 
 # Clamp auto-exposure to daylight values so the white graybox doesn't blow out.
 ppv = find_by_label("ExposureVolume") or spawn(unreal.PostProcessVolume, "ExposureVolume", (0, 0, 0))
@@ -101,8 +104,8 @@ ppv.set_editor_property("unbound", True)
 pp_settings = ppv.get_editor_property("settings")
 pp_settings.set_editor_property("override_auto_exposure_min_brightness", True)
 pp_settings.set_editor_property("override_auto_exposure_max_brightness", True)
-pp_settings.set_editor_property("auto_exposure_min_brightness", 12.5)
-pp_settings.set_editor_property("auto_exposure_max_brightness", 13.5)
+pp_settings.set_editor_property("auto_exposure_min_brightness", 11.8)
+pp_settings.set_editor_property("auto_exposure_max_brightness", 12.8)
 # Motion blur turns a scanning game into soup; off.
 pp_settings.set_editor_property("override_motion_blur_amount", True)
 pp_settings.set_editor_property("motion_blur_amount", 0.0)

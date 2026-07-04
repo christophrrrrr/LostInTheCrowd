@@ -157,7 +157,16 @@ try:
                 clean = path.split(".")[0]
                 data = eal.find_asset_data(clean)
                 if data.is_valid() and str(data.asset_class_path.asset_name) == "AnimSequence":
-                    eal.rename_asset(clean, f"{KNIGHT_DIR}/{anim_name}")
+                    target = f"{KNIGHT_DIR}/{anim_name}"
+                    eal.rename_asset(clean, target)
+                    # Mixamo clips carry root translation (walk not exported
+                    # "In Place"): root-lock so the mesh never drifts from the
+                    # clickable capsule and snaps back on loop.
+                    anim_asset = eal.load_asset(target)
+                    anim_asset.set_editor_property("enable_root_motion", True)
+                    anim_asset.set_editor_property("root_motion_root_lock",
+                                                   unreal.RootMotionRootLock.REF_POSE)
+                    eal.save_asset(target)
                     break
 
         # Drop the scratch meshes; the clips have been moved out already.

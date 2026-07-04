@@ -61,6 +61,25 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		bDragging = false;
 	}
 
+	// WASD pans camera-relative (W = away from the viewer), faster when
+	// zoomed out, clamped so the pivot stays inside the market.
+	FVector2D PanInput = FVector2D::ZeroVector;
+	if (PC->IsInputKeyDown(EKeys::W)) { PanInput.X += 1.f; }
+	if (PC->IsInputKeyDown(EKeys::S)) { PanInput.X -= 1.f; }
+	if (PC->IsInputKeyDown(EKeys::D)) { PanInput.Y += 1.f; }
+	if (PC->IsInputKeyDown(EKeys::A)) { PanInput.Y -= 1.f; }
+	if (!PanInput.IsNearlyZero())
+	{
+		const float ZoomScale = FMath::Clamp(SpringArm->TargetArmLength / 2600.f, 0.4f, 1.6f);
+		const FVector LocalMove(PanInput.X, PanInput.Y, 0.f);
+		const FVector WorldMove = FRotator(0.f, GetActorRotation().Yaw, 0.f).RotateVector(LocalMove)
+			* PanSpeed * ZoomScale * DeltaSeconds;
+		FVector NewLocation = GetActorLocation() + WorldMove;
+		NewLocation.X = FMath::Clamp(NewLocation.X, -PanLimit, PanLimit);
+		NewLocation.Y = FMath::Clamp(NewLocation.Y, -PanLimit, PanLimit);
+		SetActorLocation(NewLocation);
+	}
+
 	if (PC->WasInputKeyJustPressed(EKeys::MouseScrollUp))
 	{
 		TargetArmLength -= ZoomStep;
