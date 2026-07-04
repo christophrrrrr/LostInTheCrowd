@@ -62,16 +62,16 @@ void ALITSHUD::DrawHUD()
 	float CurtainAlpha = 0.f;
 	if (GameMode->GetFlow() == ERoundFlow::Transition)
 	{
-		CurtainAlpha = FMath::Min(0.9f, (Now - GameMode->GetTransitionStartTime()) * 3.f);
+		CurtainAlpha = FMath::Min(1.f, (Now - GameMode->GetTransitionStartTime()) * 3.f);
 	}
 	else
 	{
-		CurtainAlpha = FMath::Max(0.f, 0.9f - (Now - GameMode->GetTransitionEndTime()) * 3.f);
+		CurtainAlpha = FMath::Max(0.f, 1.f - (Now - GameMode->GetTransitionEndTime()) * 3.f);
 	}
 	if (CurtainAlpha > 0.01f)
 	{
 		DrawRect(FLinearColor(0.02f, 0.015f, 0.01f, CurtainAlpha), 0.f, 0.f, Canvas->SizeX, Canvas->SizeY);
-		const float TextAlpha = CurtainAlpha / 0.9f;
+		const float TextAlpha = CurtainAlpha;
 		DrawCenteredText(FString::Printf(TEXT("ROUND %d"), GameMode->GetRoundNumber()),
 			FLinearColor(1.f, 0.85f, 0.3f, TextAlpha), CenterX, Canvas->SizeY * 0.44f, 3.5f);
 	}
