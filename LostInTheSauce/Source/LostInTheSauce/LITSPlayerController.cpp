@@ -1,7 +1,9 @@
 #include "LITSPlayerController.h"
 
+#include "Blueprint/UserWidget.h"
 #include "Engine/World.h"
 #include "LITSGameMode.h"
+#include "LITSMenuWidget.h"
 #include "NPCCharacter.h"
 
 ALITSPlayerController::ALITSPlayerController()
@@ -19,6 +21,15 @@ void ALITSPlayerController::BeginPlay()
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputMode.SetHideCursorDuringCapture(false);
 	SetInputMode(InputMode);
+
+	if (const ALITSGameMode* GameMode = GetWorld()->GetAuthGameMode<ALITSGameMode>();
+		GameMode && GameMode->IsMenuPending())
+	{
+		if (ULITSMenuWidget* Menu = CreateWidget<ULITSMenuWidget>(this, ULITSMenuWidget::StaticClass()))
+		{
+			Menu->AddToViewport(10);
+		}
+	}
 }
 
 void ALITSPlayerController::PlayerTick(float DeltaTime)

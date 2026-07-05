@@ -5,6 +5,8 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 #include "NavMesh/RecastNavMesh.h"
 #include "LITSHUD.h"
@@ -21,6 +23,15 @@ ALITSGameMode::ALITSGameMode()
 	DefaultPawnClass = AOrbitCameraPawn::StaticClass();
 	PlayerControllerClass = ALITSPlayerController::StaticClass();
 	HUDClass = ALITSHUD::StaticClass();
+
+	// Automation runs skip the start screen (constructor so the flag is set
+	// before any actor's BeginPlay ordering can race it). -LITSKeepMenu
+	// keeps it for menu screenshots.
+	if (FParse::Param(FCommandLine::Get(), TEXT("LITSAutoShot")) &&
+		!FParse::Param(FCommandLine::Get(), TEXT("LITSKeepMenu")))
+	{
+		bMenuPending = false;
+	}
 }
 
 void ALITSGameMode::BeginPlay()
@@ -60,7 +71,8 @@ void ALITSGameMode::BeginPlay()
 
 		GetWorldTimerManager().SetTimer(AutoShotTimerHandle, []()
 		{
-			FScreenshotRequest::RequestScreenshot(TEXT("LITSAutoShot"), false, false);
+			// bShowUI=true or Slate widgets (menus) are invisible in captures.
+			FScreenshotRequest::RequestScreenshot(TEXT("LITSAutoShot"), true, false);
 		}, 8.f, false);
 
 		FTimerHandle QuitHandle;
@@ -140,7 +152,8 @@ void ALITSGameMode::TransitionBatchTick()
 	if (PendingDestroy.Num() == 0 && PendingSpawnTypes.Num() == 0 && Elapsed >= TransitionMinSeconds)
 	{
 		GetWorldTimerManager().ClearTimer(BatchTimerHandle);
-		Flow = ERoundFlow::Playing;
+		// Round 1 waits on the start screen; the crowd wanders behind it.
+		Flow = bMenuPending ? ERoundFlow::Menu : ERoundFlow::Playing;
 		TransitionEndTime = GetWorld()->GetTimeSeconds();
 		UE_LOG(LogTemp, Log, TEXT("Round %d started: find the %s among %d NPCs"),
 			RoundNumber, NPCTypeStyles::Get(TargetType).DisplayName, SpawnedNPCs.Num());
@@ -284,6 +297,31 @@ void ALITSGameMode::DumpDiagnostics()
 	UE_LOG(LogTemp, Log, TEXT("LITS-DIAG ======================================"));
 }
 
+void ALITSGameMode::StartFromMenu()
+{
+	if (Flow == ERoundFlow::Menu)
+	{
+		bMenuPending = false;
+		Flow = ERoundFlow::Playing;
+		TransitionEndTime = GetWorld()->GetTimeSeconds();
+		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_GameStart"));
+	}
+	else
+	{
+		// Menu closed before the intro transition finished — just note it;
+		// the transition end will flip straight to Playing.
+		bMenuPending = false;
+	}
+}
+
+void ALITSGameMode::PlayGameSound(const TCHAR* AssetPath) const
+{
+	if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, AssetPath))
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), Sound);
+	}
+}
+
 void ALITSGameMode::HandleNPCClicked(ANPCCharacter* NPC)
 {
 	if (Flow != ERoundFlow::Playing || !NPC)
@@ -295,11 +333,14 @@ void ALITSGameMode::HandleNPCClicked(ANPCCharacter* NPC)
 	{
 		Flow = ERoundFlow::Won;
 		NPC->CelebrateFound();
+		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_Found"));
+		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_Reward"));
 	}
 	else
 	{
 		LastWrongClickTime = GetWorld()->GetTimeSeconds();
 		NPC->ReactToWrongClick();
+		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_WrongGuess"));
 	}
 }
 
@@ -308,6 +349,7 @@ void ALITSGameMode::RequestRestart()
 	if (Flow == ERoundFlow::Won)
 	{
 		++RoundNumber;
+		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_Transition"));
 		StartRoundTransition();
 	}
 }

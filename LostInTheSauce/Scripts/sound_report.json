@@ -1,0 +1,11 @@
+{
+  "imported": [
+    "S_UIClick",
+    "S_WrongGuess",
+    "S_Found",
+    "S_Reward",
+    "S_Transition",
+    "S_GameStart"
+  ],
+  "errors": []
+}

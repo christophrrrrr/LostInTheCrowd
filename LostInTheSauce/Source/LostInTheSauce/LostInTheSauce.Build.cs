@@ -15,7 +15,8 @@ public class LostInTheSauce : ModuleRules
 			"AIModule",
 			"NavigationSystem",
 			"Slate",
-			"SlateCore"
+			"SlateCore",
+			"UMG"
 		});
 	}
 }

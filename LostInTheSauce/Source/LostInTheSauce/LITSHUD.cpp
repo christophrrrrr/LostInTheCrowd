@@ -1,11 +1,15 @@
 #include "LITSHUD.h"
 
+#include "CanvasItem.h"
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
 #include "Engine/Font.h"
 #include "Engine/World.h"
+#include "Fonts/FontMeasure.h"
+#include "Framework/Application/SlateApplication.h"
 #include "LITSGameMode.h"
 #include "NPCTypes.h"
+#include "Styling/CoreStyle.h"
 
 void ALITSHUD::DrawHUD()
 {
@@ -24,17 +28,23 @@ void ALITSHUD::DrawHUD()
 	const FString Objective = FString::Printf(TEXT("FIND THE %s"), TargetStyle.DisplayName).ToUpper();
 	DrawCenteredText(Objective, FLinearColor::White, CenterX, 34.f, 2.2f);
 
-	DrawText(FString::Printf(TEXT("Round %d"), GameMode->GetRoundNumber()),
-		FLinearColor(1.f, 1.f, 1.f, 0.8f), 24.f, 24.f, GEngine->GetLargeFont(), 1.4f);
+	{
+		FCanvasTextItem RoundItem(FVector2D(24.f, 24.f),
+			FText::FromString(FString::Printf(TEXT("Round %d"), GameMode->GetRoundNumber())),
+			GEngine->GetLargeFont(), FLinearColor(1.f, 1.f, 1.f, 0.8f));
+		RoundItem.SlateFontInfo = FCoreStyle::GetDefaultFontStyle("Bold", 18);
+		RoundItem.EnableShadow(FLinearColor(0.f, 0.f, 0.f, 0.6f));
+		Canvas->DrawItem(RoundItem);
+	}
 
 	// Color swatch beside the banner — tinted the same way the crowd is, so
 	// the hint stays honest as rounds get more color-similar.
 	const FLinearColor Swatch = FMath::Lerp(TargetStyle.OutfitPrimary,
 		NPCTypeStyles::MutedBase, GameMode->GetColorSimilarity());
-	UFont* Font = GEngine->GetLargeFont();
-	float TextWidth = 0.f, TextHeight = 0.f;
-	GetTextSize(Objective, TextWidth, TextHeight, Font, 2.2f);
-	const float SwatchX = CenterX + TextWidth * 0.5f + 18.f;
+	const TSharedRef<FSlateFontMeasure> FontMeasure =
+		FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+	const FVector2D BannerSize = FontMeasure->Measure(Objective, FCoreStyle::GetDefaultFontStyle("Bold", 29));
+	const float SwatchX = CenterX + BannerSize.X * 0.5f + 18.f;
 	DrawRect(FLinearColor(Swatch.R, Swatch.G, Swatch.B, 1.f), SwatchX, 40.f, 34.f, 34.f);
 
 	// --- Wrong-click feedback ---------------------------------------------
@@ -79,11 +89,11 @@ void ALITSHUD::DrawHUD()
 
 void ALITSHUD::DrawCenteredText(const FString& Text, const FLinearColor& Color, float CenterX, float Y, float Scale)
 {
-	UFont* Font = GEngine->GetLargeFont();
-	float TextWidth = 0.f, TextHeight = 0.f;
-	GetTextSize(Text, TextWidth, TextHeight, Font, Scale);
-
-	// Cheap drop shadow for readability over the bright market.
-	DrawText(Text, FLinearColor(0.f, 0.f, 0.f, Color.A * 0.8f), CenterX - TextWidth * 0.5f + 2.f, Y + 2.f, Font, Scale);
-	DrawText(Text, Color, CenterX - TextWidth * 0.5f, Y, Font, Scale);
+	// Slate-rendered canvas text: glyphs rasterized at the exact pixel size
+	// instead of scaling a small bitmap font (which was blurry at any scale).
+	FCanvasTextItem Item(FVector2D(CenterX, Y), FText::FromString(Text), GEngine->GetLargeFont(), Color);
+	Item.SlateFontInfo = FCoreStyle::GetDefaultFontStyle("Bold", FMath::RoundToInt(13.f * Scale));
+	Item.bCentreX = true;
+	Item.EnableShadow(FLinearColor(0.f, 0.f, 0.f, Color.A * 0.8f));
+	Canvas->DrawItem(Item);
 }

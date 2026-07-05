@@ -10,6 +10,7 @@ class ANPCCharacter;
 UENUM()
 enum class ERoundFlow : uint8
 {
+	Menu,       // start screen over the live market
 	Transition, // fade + batched despawn/spawn behind the curtain
 	Playing,
 	Won
@@ -30,6 +31,12 @@ public:
 
 	void HandleNPCClicked(ANPCCharacter* NPC);
 	void RequestRestart();
+
+	// Start screen handoff: round 1 already simmers behind the menu.
+	void StartFromMenu();
+	bool IsMenuPending() const { return bMenuPending; }
+
+	void PlayGameSound(const TCHAR* AssetPath) const;
 
 	ENPCType GetTargetType() const { return TargetType; }
 	ERoundFlow GetFlow() const { return Flow; }
@@ -72,6 +79,7 @@ protected:
 
 	ENPCType TargetType = ENPCType::Farmer;
 	ERoundFlow Flow = ERoundFlow::Transition;
+	bool bMenuPending = true;
 	float LastWrongClickTime = -1000.f;
 	int32 RoundNumber = 1;
 	float TransitionStartTime = 0.f;

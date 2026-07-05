@@ -1,0 +1,1305 @@
+{
+  "errors": [],
+  "retried_ok": [
+    "Canopy_Corner",
+    "Canopy_Full",
+    "Canopy_Ramp_Corner",
+    "Canopy_Ramp_Full",
+    "Canopy_Ramp_Mid",
+    "Canopy_Side",
+    "Canopy_Sides_Opposite",
+    "Kit_Window_Upper_Convex",
+    "Kit_Window_Upper_Straight",
+    "Prop_Barrel_1_Open",
+    "Prop_Boat_1",
+    "Prop_Boat_2",
+    "Prop_Boat_Oars_1",
+    "Prop_Boat_Oars_2",
+    "Prop_Cart_1",
+    "Prop_Cart_1_Barrels",
+    "Prop_Cart_1_Hay",
+    "Prop_Crate_1",
+    "Prop_Crate_1_Open",
+    "Prop_Lamp_Street",
+    "Prop_Well_1",
+    "Stone_Arch_Outer",
+    "Stone_Doorway_Narrow_Tall_1",
+    "Stone_Doorway_Narrow_Tall_2",
+    "Stone_Doorway_Wide_Tall_1",
+    "Stone_Doorway_Wide_Tall_2",
+    "Stone_Sewer_Grate_1",
+    "Stone_Sewer_Grate_2",
+    "Stone_Stairs_Railing",
+    "Stone_to_Stucco_Doorway_Wide_Tall_1",
+    "Stone_to_Stucco_Doorway_Wide_Tall_2",
+    "Stucco_Arch_Half_Outer",
+    "Stucco_Doorway_Narrow_Tall",
+    "Stucco_Doorway_Wide_Tall",
+    "Stucco_Window_Double_Narrow",
+    "Stucco_Window_Double_Narrow_Tall",
+    "Stucco_Window_Double_Wide",
+    "Stucco_Window_Double_Wide_Tall",
+    "Stucco_Window_Rounded_Narrow",
+    "Stucco_Window_Rounded_Narrow_Tall",
+    "Stucco_Window_Rounded_Wide",
+    "Stucco_Window_Rounded_Wide_Tall",
+    "Stucco_Window_Single_Narrow",
+    "Stucco_Window_Single_Narrow_Tall",
+    "Stucco_Window_Single_Wide",
+    "Stucco_Window_Single_Wide_Tall",
+    "Wall_Prop_Bell_1",
+    "Wall_Prop_Door_Ornate",
+    "Wall_Prop_Door_Simple",
+    "Wall_Prop_Lamp",
+    "Wall_Prop_Sign_1",
+    "Wood_Railing_Corner",
+    "Wood_Railing_Stairs",
+    "Wood_Railing_Straight",
+    "Wood_Rope_Corner",
+    "Wood_Rope_Stairs",
+    "Wood_Rope_Straight"
+  ],
+  "still_missing": [],
+  "meshes": {
+    "Canopy_Beam": {
+      "size": [
+        0.1,
+        2.0,
+        0.1
+      ],
+      "min_z": 0.45
+    },
+    "Canopy_Beam_Short": {
+      "size": [
+        0.1,
+        1.5,
+        0.1
+      ],
+      "min_z": 0.45
+    },
+    "Canopy_Corner": {
+      "size": [
+        1.05,
+        0.1,
+        1.05
+      ],
+      "min_z": -0.55
+    },
+    "Canopy_Full": {
+      "size": [
+        1.05,
+        0.1,
+        1.1
+      ],
+      "min_z": -0.55
+    },
+    "Canopy_Ramp_Corner": {
+      "size": [
+        1.05,
+        0.59,
+        1.05
+      ],
+      "min_z": -0.55
+    },
+    "Canopy_Ramp_Full": {
+      "size": [
+        1.05,
+        0.59,
+        1.1
+      ],
+      "min_z": -0.55
+    },
+    "Canopy_Ramp_Mid": {
+      "size": [
+        0.13,
+        0.13,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Canopy_Side": {
+      "size": [
+        1.0,
+        0.1,
+        0.1
+      ],
+      "min_z": -0.55
+    },
+    "Canopy_Sides_Opposite": {
+      "size": [
+        1.0,
+        0.1,
+        0.1
+      ],
+      "min_z": 0.45
+    },
+    "Canopy_Top": {
+      "size": [
+        1.0,
+        0.11,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Cobblestone_Dirt_Transition_1": {
+      "size": [
+        2.0,
+        0.23,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Cobblestone_Dirt_Transition_2": {
+      "size": [
+        2.0,
+        0.23,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Cobblestone_Dirt_Transition_3": {
+      "size": [
+        2.0,
+        0.23,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Cobblestone_Dirt_Transition_4": {
+      "size": [
+        2.0,
+        0.23,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Cobblestone_Floor_1": {
+      "size": [
+        2.0,
+        0.23,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Dirt_Fading": {
+      "size": [
+        2.0,
+        0.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Dirt_Fading_from_Gathered": {
+      "size": [
+        1.5,
+        0.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Dirt_Gathered_Corner": {
+      "size": [
+        1.5,
+        0.25,
+        1.5
+      ],
+      "min_z": -0.5
+    },
+    "Dirt_Gathered_Straight": {
+      "size": [
+        1.0,
+        0.25,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Kit_Window_Upper_Convex": {
+      "size": [
+        0.03,
+        0.6,
+        0.51
+      ],
+      "min_z": 0.24
+    },
+    "Kit_Window_Upper_Straight": {
+      "size": [
+        0.1,
+        0.47,
+        0.94
+      ],
+      "min_z": 0.03
+    },
+    "Prop_Barrel_1": {
+      "size": [
+        0.48,
+        0.5,
+        0.48
+      ],
+      "min_z": -0.24
+    },
+    "Prop_Barrel_1_Open": {
+      "size": [
+        0.35,
+        0.02,
+        0.35
+      ],
+      "min_z": -0.18
+    },
+    "Prop_Barrel_2": {
+      "size": [
+        0.48,
+        0.59,
+        0.51
+      ],
+      "min_z": -0.25
+    },
+    "Prop_Boat_1": {
+      "size": [
+        0.92,
+        0.06,
+        0.31
+      ],
+      "min_z": 0.04
+    },
+    "Prop_Boat_2": {
+      "size": [
+        0.75,
+        0.06,
+        0.26
+      ],
+      "min_z": -1.17
+    },
+    "Prop_Boat_Oars_1": {
+      "size": [
+        0.43,
+        0.05,
+        1.41
+      ],
+      "min_z": -0.91
+    },
+    "Prop_Boat_Oars_2": {
+      "size": [
+        0.27,
+        0.05,
+        1.43
+      ],
+      "min_z": -0.81
+    },
+    "Prop_Broom": {
+      "size": [
+        0.12,
+        0.79,
+        0.16
+      ],
+      "min_z": -0.08
+    },
+    "Prop_Cart_1": {
+      "size": [
+        0.05,
+        0.59,
+        1.7
+      ],
+      "min_z": -0.84
+    },
+    "Prop_Cart_1_Barrels": {
+      "size": [
+        0.05,
+        0.59,
+        1.7
+      ],
+      "min_z": -0.84
+    },
+    "Prop_Cart_1_Hay": {
+      "size": [
+        0.05,
+        0.59,
+        1.7
+      ],
+      "min_z": -0.84
+    },
+    "Prop_Crate_1": {
+      "size": [
+        0.8,
+        0.03,
+        0.8
+      ],
+      "min_z": -0.4
+    },
+    "Prop_Crate_1_Open": {
+      "size": [
+        0.8,
+        0.03,
+        0.8
+      ],
+      "min_z": -0.4
+    },
+    "Prop_Hay_1": {
+      "size": [
+        0.83,
+        0.58,
+        0.58
+      ],
+      "min_z": -0.29
+    },
+    "Prop_Ladder_1": {
+      "size": [
+        1.11,
+        3.93,
+        0.68
+      ],
+      "min_z": -0.34
+    },
+    "Prop_Lamp_Street": {
+      "size": [
+        0.34,
+        0.5,
+        0.06
+      ],
+      "min_z": -0.03
+    },
+    "Prop_Well_1": {
+      "size": [
+        0.08,
+        0.59,
+        0.54
+      ],
+      "min_z": -0.54
+    },
+    "Prop_Well_Cobblestone": {
+      "size": [
+        1.0,
+        0.21,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Prop_Well_Dirt": {
+      "size": [
+        1.0,
+        0.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Prop_Well_Grass": {
+      "size": [
+        1.0,
+        0.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Prop_Well_Inside": {
+      "size": [
+        0.66,
+        1.0,
+        0.66
+      ],
+      "min_z": -0.33
+    },
+    "Roof_Accent_Rake_Concave": {
+      "size": [
+        1.0,
+        0.7,
+        0.2
+      ],
+      "min_z": 0.2
+    },
+    "Roof_Accent_Rake_Convex": {
+      "size": [
+        1.0,
+        0.7,
+        0.2
+      ],
+      "min_z": 0.2
+    },
+    "Roof_Accent_Rake_Eave": {
+      "size": [
+        0.35,
+        0.45,
+        0.2
+      ],
+      "min_z": 0.2
+    },
+    "Roof_Accent_Rake_Straight": {
+      "size": [
+        1.0,
+        1.2,
+        0.2
+      ],
+      "min_z": 0.2
+    },
+    "Roof_Accent_Ridge": {
+      "size": [
+        1.0,
+        0.2,
+        0.2
+      ],
+      "min_z": 0.4
+    },
+    "Roof_Accent_Ridge_End": {
+      "size": [
+        1.5,
+        0.32,
+        0.32
+      ],
+      "min_z": 0.34
+    },
+    "Roof_Concave_Corner_Inner": {
+      "size": [
+        1.0,
+        0.7,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Concave_Corner_Outer": {
+      "size": [
+        1.05,
+        0.7,
+        1.05
+      ],
+      "min_z": -0.55
+    },
+    "Roof_Concave_Corner_Outer_Eave": {
+      "size": [
+        1.31,
+        0.82,
+        1.31
+      ],
+      "min_z": -0.81
+    },
+    "Roof_Concave_Side": {
+      "size": [
+        1.05,
+        0.7,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Concave_Side_Eave": {
+      "size": [
+        1.31,
+        0.82,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Concave_Side_Eave_Edge": {
+      "size": [
+        1.31,
+        0.95,
+        1.2
+      ],
+      "min_z": -0.7
+    },
+    "Roof_Concave_Side_Edge": {
+      "size": [
+        1.05,
+        0.95,
+        1.2
+      ],
+      "min_z": -0.7
+    },
+    "Roof_Convex_Corner_Inner": {
+      "size": [
+        1.0,
+        0.7,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Convex_Corner_Outer": {
+      "size": [
+        1.07,
+        0.7,
+        1.07
+      ],
+      "min_z": -0.57
+    },
+    "Roof_Convex_Corner_Outer_Eave": {
+      "size": [
+        1.31,
+        0.82,
+        1.31
+      ],
+      "min_z": -0.81
+    },
+    "Roof_Convex_Side": {
+      "size": [
+        1.07,
+        0.7,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Convex_Side_Eave": {
+      "size": [
+        1.31,
+        0.82,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Convex_Side_Eave_Edge": {
+      "size": [
+        1.31,
+        0.95,
+        1.2
+      ],
+      "min_z": -0.7
+    },
+    "Roof_Convex_Side_Edge": {
+      "size": [
+        1.07,
+        0.95,
+        1.2
+      ],
+      "min_z": -0.7
+    },
+    "Roof_Prop_Chimney_Pipe": {
+      "size": [
+        0.77,
+        1.17,
+        0.37
+      ],
+      "min_z": -0.18
+    },
+    "Roof_Prop_Chimney_Stone": {
+      "size": [
+        0.5,
+        1.75,
+        0.5
+      ],
+      "min_z": -0.25
+    },
+    "Roof_Straight_Corner_Inner": {
+      "size": [
+        1.0,
+        1.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Straight_Corner_Outer": {
+      "size": [
+        1.07,
+        1.2,
+        1.07
+      ],
+      "min_z": -0.57
+    },
+    "Roof_Straight_Corner_Outer_Eave": {
+      "size": [
+        1.31,
+        1.32,
+        1.31
+      ],
+      "min_z": -0.81
+    },
+    "Roof_Straight_Side": {
+      "size": [
+        1.07,
+        1.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Straight_Side_Eave": {
+      "size": [
+        1.31,
+        1.32,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Roof_Straight_Side_Eave_Edge": {
+      "size": [
+        1.31,
+        1.45,
+        1.2
+      ],
+      "min_z": -0.7
+    },
+    "Roof_Straight_Side_Edge": {
+      "size": [
+        1.07,
+        1.45,
+        1.2
+      ],
+      "min_z": -0.7
+    },
+    "Stone_Arch": {
+      "size": [
+        1.0,
+        1.41,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Arch_Outer": {
+      "size": [
+        1.0,
+        1.41,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Curb_1": {
+      "size": [
+        0.2,
+        0.3,
+        0.7
+      ],
+      "min_z": -0.35
+    },
+    "Stone_Curb_2": {
+      "size": [
+        0.2,
+        0.3,
+        0.7
+      ],
+      "min_z": -0.35
+    },
+    "Stone_Curb_3": {
+      "size": [
+        0.2,
+        0.3,
+        0.7
+      ],
+      "min_z": -0.35
+    },
+    "Stone_Curb_4": {
+      "size": [
+        0.2,
+        0.3,
+        0.7
+      ],
+      "min_z": -0.35
+    },
+    "Stone_Doorway_Narrow_Tall_1": {
+      "size": [
+        1.01,
+        0.5,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Doorway_Narrow_Tall_2": {
+      "size": [
+        1.01,
+        0.5,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Doorway_Wide_Tall_1": {
+      "size": [
+        0.35,
+        1.55,
+        1.1
+      ],
+      "min_z": -0.05
+    },
+    "Stone_Doorway_Wide_Tall_2": {
+      "size": [
+        0.35,
+        1.55,
+        1.1
+      ],
+      "min_z": -0.05
+    },
+    "Stone_Floor_1": {
+      "size": [
+        1.0,
+        0.21,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Floor_2": {
+      "size": [
+        1.0,
+        0.21,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Pillar": {
+      "size": [
+        0.25,
+        0.6,
+        0.25
+      ],
+      "min_z": 0.38
+    },
+    "Stone_Pillar_Base": {
+      "size": [
+        0.3,
+        0.4,
+        0.3
+      ],
+      "min_z": 0.35
+    },
+    "Stone_Sewer_Grate_1": {
+      "size": [
+        0.15,
+        0.25,
+        0.15
+      ],
+      "min_z": 0.2
+    },
+    "Stone_Sewer_Grate_2": {
+      "size": [
+        0.05,
+        0.42,
+        0.05
+      ],
+      "min_z": -0.03
+    },
+    "Stone_Stairs_Railing": {
+      "size": [
+        0.55,
+        0.2,
+        0.2
+      ],
+      "min_z": 0.4
+    },
+    "Stone_Steps": {
+      "size": [
+        2.0,
+        1.1,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Steps_Side_1": {
+      "size": [
+        2.0,
+        1.1,
+        1.01
+      ],
+      "min_z": -0.51
+    },
+    "Stone_Steps_Side_2": {
+      "size": [
+        2.0,
+        1.1,
+        1.01
+      ],
+      "min_z": -0.51
+    },
+    "Stone_to_Stucco_Doorway_Wide_Tall_1": {
+      "size": [
+        0.35,
+        1.55,
+        1.1
+      ],
+      "min_z": -0.05
+    },
+    "Stone_to_Stucco_Doorway_Wide_Tall_2": {
+      "size": [
+        0.35,
+        1.55,
+        1.1
+      ],
+      "min_z": -0.05
+    },
+    "Stone_Wall_1": {
+      "size": [
+        0.06,
+        1.0,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Wall_2": {
+      "size": [
+        0.06,
+        1.0,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Wall_3": {
+      "size": [
+        0.06,
+        1.0,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Wall_4": {
+      "size": [
+        0.06,
+        1.0,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stone_Wall_5": {
+      "size": [
+        0.06,
+        1.0,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Arch_Half": {
+      "size": [
+        1.0,
+        0.5,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Arch_Half_Outer": {
+      "size": [
+        1.0,
+        0.5,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Block": {
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Doorway_Narrow_Tall": {
+      "size": [
+        1.0,
+        0.5,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Doorway_Wide_Tall": {
+      "size": [
+        1.0,
+        2.0,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Prop_Support_Angled_Large": {
+      "size": [
+        0.1,
+        1.21,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Prop_Support_Angled_Low": {
+      "size": [
+        0.1,
+        0.58,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Prop_Support_Angled_Small": {
+      "size": [
+        0.1,
+        0.6,
+        0.57
+      ],
+      "min_z": -0.07
+    },
+    "Stucco_Prop_Support_Beam_1": {
+      "size": [
+        0.2,
+        0.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Prop_Support_Beam_2": {
+      "size": [
+        0.2,
+        0.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Prop_Support_Beam_3": {
+      "size": [
+        0.2,
+        0.2,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Prop_Support_Pillar_1": {
+      "size": [
+        0.2,
+        1.0,
+        0.2
+      ],
+      "min_z": 0.4
+    },
+    "Stucco_Prop_Support_Pillar_2": {
+      "size": [
+        0.2,
+        1.0,
+        0.2
+      ],
+      "min_z": 0.4
+    },
+    "Stucco_Prop_Support_Pillar_3": {
+      "size": [
+        0.2,
+        1.0,
+        0.2
+      ],
+      "min_z": 0.4
+    },
+    "Stucco_Window_Double_Narrow": {
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Window_Double_Narrow_Tall": {
+      "size": [
+        1.0,
+        2.0,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Window_Double_Wide": {
+      "size": [
+        1.0,
+        1.0,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Window_Double_Wide_Tall": {
+      "size": [
+        0.25,
+        0.8,
+        1.1
+      ],
+      "min_z": -0.05
+    },
+    "Stucco_Window_Rounded_Narrow": {
+      "size": [
+        0.03,
+        0.6,
+        0.51
+      ],
+      "min_z": -0.26
+    },
+    "Stucco_Window_Rounded_Narrow_Tall": {
+      "size": [
+        0.03,
+        0.6,
+        0.51
+      ],
+      "min_z": -0.26
+    },
+    "Stucco_Window_Rounded_Wide": {
+      "size": [
+        0.03,
+        0.6,
+        0.51
+      ],
+      "min_z": 0.24
+    },
+    "Stucco_Window_Rounded_Wide_Tall": {
+      "size": [
+        0.03,
+        0.6,
+        0.51
+      ],
+      "min_z": 0.24
+    },
+    "Stucco_Window_Single_Narrow": {
+      "size": [
+        0.03,
+        0.6,
+        0.4
+      ],
+      "min_z": -0.2
+    },
+    "Stucco_Window_Single_Narrow_Tall": {
+      "size": [
+        0.03,
+        0.6,
+        0.4
+      ],
+      "min_z": -0.2
+    },
+    "Stucco_Window_Single_Wide": {
+      "size": [
+        1.0,
+        1.0,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Stucco_Window_Single_Wide_Tall": {
+      "size": [
+        1.0,
+        2.0,
+        2.0
+      ],
+      "min_z": -0.5
+    },
+    "Wall_Prop_Bell_1": {
+      "size": [
+        0.55,
+        0.38,
+        0.05
+      ],
+      "min_z": -0.03
+    },
+    "Wall_Prop_Door_Ornate": {
+      "size": [
+        0.01,
+        0.15,
+        0.08
+      ],
+      "min_z": -0.31
+    },
+    "Wall_Prop_Door_Simple": {
+      "size": [
+        0.04,
+        0.16,
+        0.64
+      ],
+      "min_z": -0.25
+    },
+    "Wall_Prop_Lamp": {
+      "size": [
+        0.16,
+        0.17,
+        0.16
+      ],
+      "min_z": -0.08
+    },
+    "Wall_Prop_Sign_1": {
+      "size": [
+        0.05,
+        0.08,
+        0.01
+      ],
+      "min_z": -0.01
+    },
+    "Wall_Prop_Windmill_1": {
+      "size": [
+        1.02,
+        7.0,
+        7.0
+      ],
+      "min_z": -3.5
+    },
+    "Waterwheel_1": {
+      "size": [
+        1.5,
+        4.4,
+        4.4
+      ],
+      "min_z": -2.2
+    },
+    "Waterwheel_Flume_Curved": {
+      "size": [
+        0.75,
+        0.25,
+        0.75
+      ],
+      "min_z": -0.25
+    },
+    "Waterwheel_Flume_End": {
+      "size": [
+        0.79,
+        0.45,
+        0.5
+      ],
+      "min_z": -0.25
+    },
+    "Waterwheel_Flume_Ramp": {
+      "size": [
+        1.0,
+        0.5,
+        0.5
+      ],
+      "min_z": -0.25
+    },
+    "Waterwheel_Flume_Ramp_Supported": {
+      "size": [
+        1.0,
+        0.5,
+        0.5
+      ],
+      "min_z": -0.25
+    },
+    "Waterwheel_Flume_Straight": {
+      "size": [
+        1.0,
+        0.25,
+        0.5
+      ],
+      "min_z": -0.25
+    },
+    "Waterwheel_Flume_Support_Brace": {
+      "size": [
+        1.0,
+        1.0,
+        0.05
+      ],
+      "min_z": 0.0
+    },
+    "Waterwheel_Flume_Support_Brace_Double": {
+      "size": [
+        1.0,
+        1.0,
+        0.1
+      ],
+      "min_z": -0.05
+    },
+    "Waterwheel_Flume_Support_Pillar": {
+      "size": [
+        0.2,
+        1.0,
+        0.2
+      ],
+      "min_z": -0.1
+    },
+    "Wood_Baseboard": {
+      "size": [
+        1.0,
+        0.25,
+        0.2
+      ],
+      "min_z": 0.4
+    },
+    "Wood_Floor_Corner": {
+      "size": [
+        1.0,
+        0.1,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Wood_Floor_Straight_1": {
+      "size": [
+        1.0,
+        0.1,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Wood_Floor_Straight_2": {
+      "size": [
+        1.0,
+        0.1,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Wood_Floor_Straight_3": {
+      "size": [
+        1.0,
+        0.1,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Wood_Floor_Straight_4": {
+      "size": [
+        1.0,
+        0.1,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Wood_Post_Large": {
+      "size": [
+        0.23,
+        1.0,
+        0.23
+      ],
+      "min_z": 0.38
+    },
+    "Wood_Post_Small": {
+      "size": [
+        0.17,
+        0.55,
+        0.17
+      ],
+      "min_z": 0.41
+    },
+    "Wood_Railing_Corner": {
+      "size": [
+        0.05,
+        0.39,
+        0.05
+      ],
+      "min_z": -0.4
+    },
+    "Wood_Railing_Stairs": {
+      "size": [
+        0.05,
+        0.4,
+        0.05
+      ],
+      "min_z": 0.47
+    },
+    "Wood_Railing_Straight": {
+      "size": [
+        1.0,
+        0.09,
+        0.1
+      ],
+      "min_z": 0.45
+    },
+    "Wood_Rope_Corner": {
+      "size": [
+        0.23,
+        1.0,
+        0.23
+      ],
+      "min_z": 0.38
+    },
+    "Wood_Rope_Stairs": {
+      "size": [
+        2.0,
+        1.29,
+        0.2
+      ],
+      "min_z": 0.4
+    },
+    "Wood_Rope_Straight": {
+      "size": [
+        1.0,
+        0.29,
+        0.2
+      ],
+      "min_z": 0.4
+    },
+    "Wood_Steps": {
+      "size": [
+        2.0,
+        1.14,
+        1.0
+      ],
+      "min_z": -0.5
+    },
+    "Wood_Steps_Stucco": {
+      "size": [
+        2.0,
+        1.0,
+        1.0
+      ],
+      "min_z": -0.5
+    }
+  }
+}
