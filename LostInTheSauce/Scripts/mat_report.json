@@ -1,0 +1,22 @@
+{
+  "materials": [
+    "M_NPCColor"
+  ],
+  "actors": {
+    "Floor": [
+      "WorldGridMaterial"
+    ],
+    "MV_Tile_0_0": [
+      "WorldGridMaterial"
+    ],
+    "MV_House0_Roof": [
+      "WorldGridMaterial"
+    ],
+    "MV_Stall0_Canopy": [
+      "WorldGridMaterial"
+    ],
+    "MV_Stall0_Counter": [
+      "WorldGridMaterial"
+    ]
+  }
+}

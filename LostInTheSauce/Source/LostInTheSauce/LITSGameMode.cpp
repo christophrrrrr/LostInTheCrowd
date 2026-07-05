@@ -1,7 +1,10 @@
 #include "LITSGameMode.h"
 
 #include "Camera/CameraActor.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/SceneCapture2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
@@ -75,11 +78,28 @@ void ALITSGameMode::BeginPlay()
 			FScreenshotRequest::RequestScreenshot(TEXT("LITSAutoShot"), true, false);
 		}, 8.f, false);
 
+		// Second capture: straight-down aerial for layout QA.
+		FTimerHandle TopCamHandle;
+		GetWorldTimerManager().SetTimer(TopCamHandle, [this]()
+		{
+			ACameraActor* TopCam = GetWorld()->SpawnActor<ACameraActor>(
+				FVector(0.f, 0.f, 7200.f), FRotator(-89.f, 0.f, 0.f));
+			if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+			{
+				PC->SetViewTargetWithBlend(TopCam, 0.f);
+			}
+		}, 11.f, false);
+		FTimerHandle TopShotHandle;
+		GetWorldTimerManager().SetTimer(TopShotHandle, []()
+		{
+			FScreenshotRequest::RequestScreenshot(TEXT("LITSTopShot"), true, false);
+		}, 11.5f, false);
+
 		FTimerHandle QuitHandle;
 		GetWorldTimerManager().SetTimer(QuitHandle, []()
 		{
 			FGenericPlatformMisc::RequestExit(false);
-		}, 12.f, false);
+		}, 14.f, false);
 	}
 }
 
@@ -155,6 +175,7 @@ void ALITSGameMode::TransitionBatchTick()
 		// Round 1 waits on the start screen; the crowd wanders behind it.
 		Flow = bMenuPending ? ERoundFlow::Menu : ERoundFlow::Playing;
 		TransitionEndTime = GetWorld()->GetTimeSeconds();
+		CaptureTargetPortrait();
 		UE_LOG(LogTemp, Log, TEXT("Round %d started: find the %s among %d NPCs"),
 			RoundNumber, NPCTypeStyles::Get(TargetType).DisplayName, SpawnedNPCs.Num());
 
@@ -173,6 +194,53 @@ void ALITSGameMode::TransitionBatchTick()
 			}
 		}, 3.f, false);
 	}
+}
+
+void ALITSGameMode::CaptureTargetPortrait()
+{
+	if (SpawnedNPCs.Num() == 0 || !IsValid(SpawnedNPCs[0]))
+	{
+		return;
+	}
+	ANPCCharacter* Target = SpawnedNPCs[0];
+
+	if (!TargetPortrait)
+	{
+		TargetPortrait = NewObject<UTextureRenderTarget2D>(this);
+		TargetPortrait->InitAutoFormat(256, 256);
+		TargetPortrait->TargetGamma = 2.2f;
+	}
+
+	// Photograph the target head-on, framing the whole body. Trace first:
+	// blindly placing the camera 2.4m out can bury it inside a stall wall.
+	const FVector TargetCenter = Target->GetActorLocation();
+	FVector CameraLocation = TargetCenter + Target->GetActorForwardVector() * 240.f + FVector(0.f, 0.f, 20.f);
+	FHitResult BlockHit;
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(Target);
+	if (GetWorld()->LineTraceSingleByChannel(BlockHit, TargetCenter + FVector(0.f, 0.f, 20.f),
+		CameraLocation, ECC_Visibility, TraceParams))
+	{
+		CameraLocation = FMath::Lerp(FVector(TargetCenter + FVector(0.f, 0.f, 20.f)), BlockHit.Location, 0.8f);
+	}
+	const FRotator CameraRotation = (TargetCenter - CameraLocation).Rotation();
+
+	ASceneCapture2D* Capture = GetWorld()->SpawnActor<ASceneCapture2D>(CameraLocation, CameraRotation);
+	if (!Capture)
+	{
+		return;
+	}
+	USceneCaptureComponent2D* Component = Capture->GetCaptureComponent2D();
+	Component->TextureTarget = TargetPortrait;
+	// Base color: raw albedo, no lighting or exposure involved. Single-frame
+	// captures can't auto-expose (two attempts came out blown white), and for
+	// a flat-color game the albedo IS the clue the player scans for.
+	Component->CaptureSource = ESceneCaptureSource::SCS_BaseColor;
+	Component->FOVAngle = 38.f;
+	Component->bCaptureEveryFrame = false;
+	Component->bCaptureOnMovement = false;
+	Component->CaptureScene();
+	Capture->Destroy();
 }
 
 void ALITSGameMode::SpawnOneNPC(ENPCType Type)

@@ -1,0 +1,9 @@
+{
+  "checkpoints": [
+    "start",
+    "lighting",
+    "materials",
+    "saved"
+  ],
+  "status": "OK"
+}

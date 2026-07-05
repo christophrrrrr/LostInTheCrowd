@@ -4,6 +4,7 @@
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
 #include "Engine/Font.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"
 #include "Fonts/FontMeasure.h"
 #include "Framework/Application/SlateApplication.h"
@@ -37,15 +38,19 @@ void ALITSHUD::DrawHUD()
 		Canvas->DrawItem(RoundItem);
 	}
 
-	// Color swatch beside the banner — tinted the same way the crowd is, so
-	// the hint stays honest as rounds get more color-similar.
-	const FLinearColor Swatch = FMath::Lerp(TargetStyle.OutfitPrimary,
-		NPCTypeStyles::MutedBase, GameMode->GetColorSimilarity());
-	const TSharedRef<FSlateFontMeasure> FontMeasure =
-		FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
-	const FVector2D BannerSize = FontMeasure->Measure(Objective, FCoreStyle::GetDefaultFontStyle("Bold", 29));
-	const float SwatchX = CenterX + BannerSize.X * 0.5f + 18.f;
-	DrawRect(FLinearColor(Swatch.R, Swatch.G, Swatch.B, 1.f), SwatchX, 40.f, 34.f, 34.f);
+	// Live portrait of THE target beside the banner: exact outfit colors for
+	// this round, so the clue stays honest as the crowd converges.
+	if (UTextureRenderTarget2D* Portrait = GameMode->GetTargetPortrait())
+	{
+		const TSharedRef<FSlateFontMeasure> FontMeasure =
+			FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+		const FVector2D BannerSize = FontMeasure->Measure(Objective, FCoreStyle::GetDefaultFontStyle("Bold", 29));
+		const float PortraitX = CenterX + BannerSize.X * 0.5f + 20.f;
+		const float PortraitSize = 96.f;
+		// Gold frame behind, then the snapshot.
+		DrawRect(FLinearColor(1.f, 0.85f, 0.3f, 0.9f), PortraitX - 3.f, 21.f, PortraitSize + 6.f, PortraitSize + 6.f);
+		DrawTexture(Portrait, PortraitX, 24.f, PortraitSize, PortraitSize, 0.f, 0.f, 1.f, 1.f);
+	}
 
 	// --- Wrong-click feedback ---------------------------------------------
 	const float SinceWrong = GetWorld()->GetTimeSeconds() - GameMode->GetLastWrongClickTime();

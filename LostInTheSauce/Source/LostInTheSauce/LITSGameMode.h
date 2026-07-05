@@ -52,6 +52,9 @@ public:
 	float GetColorSimilarity() const;
 	int32 GetCrowdSize() const;
 
+	// Live snapshot of THIS round's target, in its current outfit colors.
+	class UTextureRenderTarget2D* GetTargetPortrait() const { return TargetPortrait; }
+
 	UPROPERTY(EditAnywhere, Category = "Round")
 	int32 BaseNPCCount = 100;
 
@@ -74,6 +77,7 @@ protected:
 	void StartRoundTransition();
 	void TransitionBatchTick();
 	void SpawnOneNPC(ENPCType Type);
+	void CaptureTargetPortrait();
 	bool FindSpawnPoint(FVector& OutLocation) const;
 	void DumpDiagnostics();
 
@@ -92,6 +96,9 @@ protected:
 
 	UPROPERTY()
 	TArray<TObjectPtr<ANPCCharacter>> SpawnedNPCs;
+
+	UPROPERTY()
+	TObjectPtr<class UTextureRenderTarget2D> TargetPortrait;
 
 	FTimerHandle BatchTimerHandle;
 	FTimerHandle AutoShotTimerHandle;

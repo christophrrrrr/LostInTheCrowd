@@ -202,8 +202,9 @@ void ANPCCharacter::ApplyCrowdColors()
 	const FNPCTypeStyle& Style = NPCTypeStyles::Get(NPCType);
 	const FLinearColor Skin = SkinTones[FMath::RandRange(0, 2)];
 	const FLinearColor Hair = HairTones[FMath::RandRange(0, 2)];
-	// Small per-NPC brightness wobble so even same-type outfits aren't clones.
-	const float Jitter = FMath::FRandRange(0.88f, 1.12f);
+	// Small per-NPC brightness wobble so even same-type outfits aren't
+	// clones. Kept subtle and mostly downward: brightening washes saturation.
+	const float Jitter = FMath::FRandRange(0.86f, 1.04f);
 
 	const TArray<FSkeletalMaterial>& Slots = SkeletalMesh->GetMaterials();
 	for (int32 SlotIndex = 0; SlotIndex < Slots.Num(); ++SlotIndex)

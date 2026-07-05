@@ -36,12 +36,14 @@ namespace NPCTypeStyles
 {
 	inline const FNPCTypeStyle& Get(ENPCType Type)
 	{
+		// Saturated signature palettes — the vibrancy lives here; round
+		// similarity pulls them toward MutedBase later.
 		static const FNPCTypeStyle Styles[NPCTypeCount] = {
-			{ TEXT("Farmer"),     TEXT("/Game/LostInTheSauce/Characters/Farmer/Farmer"),         FLinearColor(0.35f, 0.45f, 0.60f), FLinearColor(0.75f, 0.65f, 0.40f) },
-			{ TEXT("King"),       TEXT("/Game/LostInTheSauce/Characters/King/King"),             FLinearColor(0.85f, 0.65f, 0.15f), FLinearColor(0.25f, 0.30f, 0.55f) },
-			{ TEXT("Witch"),      TEXT("/Game/LostInTheSauce/Characters/Witch/Witch"),           FLinearColor(0.45f, 0.20f, 0.60f), FLinearColor(0.25f, 0.18f, 0.12f) },
-			{ TEXT("Adventurer"), TEXT("/Game/LostInTheSauce/Characters/Adventurer/Adventurer"), FLinearColor(0.40f, 0.30f, 0.20f), FLinearColor(0.35f, 0.38f, 0.20f) },
-			{ TEXT("Squire"),     TEXT("/Game/LostInTheSauce/Characters/Medieval/Medieval"),     FLinearColor(0.70f, 0.40f, 0.20f), FLinearColor(0.80f, 0.75f, 0.60f) },
+			{ TEXT("Farmer"),     TEXT("/Game/LostInTheSauce/Characters/Farmer/Farmer"),         FLinearColor(0.25f, 0.42f, 0.72f), FLinearColor(0.82f, 0.68f, 0.32f) },
+			{ TEXT("King"),       TEXT("/Game/LostInTheSauce/Characters/King/King"),             FLinearColor(0.92f, 0.65f, 0.08f), FLinearColor(0.18f, 0.24f, 0.68f) },
+			{ TEXT("Witch"),      TEXT("/Game/LostInTheSauce/Characters/Witch/Witch"),           FLinearColor(0.50f, 0.13f, 0.72f), FLinearColor(0.20f, 0.14f, 0.10f) },
+			{ TEXT("Adventurer"), TEXT("/Game/LostInTheSauce/Characters/Adventurer/Adventurer"), FLinearColor(0.30f, 0.48f, 0.16f), FLinearColor(0.48f, 0.30f, 0.14f) },
+			{ TEXT("Squire"),     TEXT("/Game/LostInTheSauce/Characters/Medieval/Medieval"),     FLinearColor(0.82f, 0.34f, 0.10f), FLinearColor(0.88f, 0.80f, 0.58f) },
 		};
 		return Styles[FMath::Clamp(static_cast<int32>(Type), 0, NPCTypeCount - 1)];
 	}
