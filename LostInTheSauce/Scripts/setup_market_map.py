@@ -91,11 +91,11 @@ sun = find_by_label("Sun") or spawn(unreal.DirectionalLight, "Sun", (0, 0, 2000)
 sun.set_actor_rotation(unreal.Rotator(0.0, -58.0, 35.0), False)
 sun_comp = sun.get_component_by_class(unreal.DirectionalLightComponent)
 sun_comp.set_editor_property("atmosphere_sun_light", True)
-# Dim, warm sun — strong white light was blowing the ground/buildings to
-# pure white and killing their colors.
-sun_comp.set_editor_property("intensity", 16000.0)
+# Warm dusk: sun dim enough that nothing blows out to white — the yellow
+# fill lights carry the look.
+sun_comp.set_editor_property("intensity", 8000.0)
 # NOTE: unreal.Color positional args are B,G,R,A — use named args.
-sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=220, b=170, a=255))
+sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=205, b=150, a=255))
 sun_comp.set_editor_property("light_source_angle", 3.0)  # soft shadows
 
 if not find_by_label("Sky"):
@@ -109,20 +109,27 @@ fog_comp.set_editor_property("start_distance", 3000.0)
 skylight = find_by_label("SkyLight") or spawn(unreal.SkyLight, "SkyLight", (0, 0, 500))
 skylight_comp = skylight.get_component_by_class(unreal.SkyLightComponent)
 skylight_comp.set_editor_property("real_time_capture", True)
-# Low warm ambient — fills shadows without washing colors out.
-skylight_comp.set_editor_property("intensity", 1.0)
+# Warm-tinted ambient, raised: lifts the pitch-black pockets without going
+# white-gray.
+skylight_comp.set_editor_property("intensity", 1.7)
+skylight_comp.set_editor_property("light_color", unreal.Color(r=255, g=214, b=170, a=255))
 
-# --- Warm brazier accent lights around the town --------------------------------
+# --- Warm fill lights across the whole town (dominant look) --------------------
 import math as _math
-for _i in range(6):
+_positions = []
+for _i in range(4):   # inner ring
+    _a = _math.radians(_i * 90.0 + 45.0)
+    _positions.append((_math.cos(_a) * 900.0, _math.sin(_a) * 900.0))
+for _i in range(8):   # outer ring
+    _a = _math.radians(_i * 45.0 + 12.0)
+    _positions.append((_math.cos(_a) * 1950.0, _math.sin(_a) * 1950.0))
+for _i, (_bx, _by) in enumerate(_positions):
     _label = f"Brazier_{_i}"
-    _ang = _math.radians(_i * 60.0 + 20.0)
-    _bx, _by = _math.cos(_ang) * 1700.0, _math.sin(_ang) * 1700.0
     _lamp = find_by_label(_label) or spawn(unreal.PointLight, _label, (_bx, _by, 450))
     _lamp.set_actor_location(unreal.Vector(_bx, _by, 450), False, False)
     _lc = _lamp.get_component_by_class(unreal.PointLightComponent)
     _lc.set_editor_property("intensity", 40000.0)
-    _lc.set_editor_property("attenuation_radius", 1400.0)
+    _lc.set_editor_property("attenuation_radius", 1600.0)
     _lc.set_editor_property("light_color", unreal.Color(r=255, g=170, b=95, a=255))
     _lc.set_editor_property("cast_shadows", False)  # perf + avoids harsh pools
 
@@ -132,8 +139,8 @@ pp_settings = ppv.get_editor_property("settings")
 pp_settings.set_editor_property("override_auto_exposure_min_brightness", True)
 pp_settings.set_editor_property("override_auto_exposure_max_brightness", True)
 # Higher target = the auto-exposure darkens the image, preventing blow-out.
-pp_settings.set_editor_property("auto_exposure_min_brightness", 12.6)
-pp_settings.set_editor_property("auto_exposure_max_brightness", 13.6)
+pp_settings.set_editor_property("auto_exposure_min_brightness", 13.0)
+pp_settings.set_editor_property("auto_exposure_max_brightness", 13.8)
 pp_settings.set_editor_property("override_motion_blur_amount", True)
 pp_settings.set_editor_property("motion_blur_amount", 0.0)
 pp_settings.set_editor_property("override_color_saturation", True)

@@ -58,6 +58,9 @@ void AOrbitCameraPawn::ComputeBoundsFromWalls()
 		const float Inset = 80.f;
 		BoundsMin = FVector2D(Bounds.Min.X + Inset, Bounds.Min.Y + Inset);
 		BoundsMax = FVector2D(Bounds.Max.X - Inset, Bounds.Max.Y - Inset);
+		// Invisible ceiling just below the wall tops: the player can never
+		// look over the boundary, and it adapts if the walls are re-sized.
+		MaxHeight = FMath::Max(800.f, Bounds.Max.Z - 150.f);
 	}
 }
 

@@ -15,6 +15,7 @@ class LOSTINTHESAUCE_API ULITSMenuWidget : public UUserWidget
 
 public:
 	virtual bool Initialize() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
 	UFUNCTION()
@@ -28,4 +29,12 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UButton> QuitButton;
+
+	UPROPERTY()
+	TObjectPtr<class UBorder> Backdrop;
+
+	// Title-card intro: the backdrop starts fully opaque (masking the crowd
+	// spawn hitches) and melts to a translucent vignette once the round has
+	// finished setting up behind the menu.
+	float BackdropAlpha = 1.f;
 };

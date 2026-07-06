@@ -42,10 +42,12 @@ bool ULITSMenuWidget::Initialize()
 	UOverlay* Root = WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(), TEXT("Root"));
 	WidgetTree->RootWidget = Root;
 
-	// Dark vignette over the live market behind the menu.
-	UBorder* Dim = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
-	Dim->SetBrushColor(FLinearColor(0.01f, 0.008f, 0.006f, 0.72f));
-	UOverlaySlot* DimSlot = Root->AddChildToOverlay(Dim);
+	// Backdrop: starts fully OPAQUE (title card) so the first crowd spawn's
+	// loading hitches happen invisibly, then NativeTick melts it into a
+	// translucent vignette over the live market.
+	Backdrop = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
+	Backdrop->SetBrushColor(FLinearColor(0.03f, 0.02f, 0.012f, BackdropAlpha));
+	UOverlaySlot* DimSlot = Root->AddChildToOverlay(Backdrop);
 	DimSlot->SetHorizontalAlignment(HAlign_Fill);
 	DimSlot->SetVerticalAlignment(VAlign_Fill);
 
@@ -96,6 +98,25 @@ bool ULITSMenuWidget::Initialize()
 	AddRow(QuitButton, 28.f);
 
 	return true;
+}
+
+void ULITSMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (!Backdrop)
+	{
+		return;
+	}
+	const ALITSGameMode* GameMode = GetWorld()->GetAuthGameMode<ALITSGameMode>();
+	// Stay opaque while the opening round is still assembling; then reveal.
+	const bool bWorldReady = GameMode && GameMode->GetFlow() != ERoundFlow::Transition;
+	const float Target = bWorldReady ? 0.72f : 1.f;
+	if (!FMath::IsNearlyEqual(BackdropAlpha, Target, 0.002f))
+	{
+		BackdropAlpha = FMath::FInterpTo(BackdropAlpha, Target, InDeltaTime, 1.8f);
+		Backdrop->SetBrushColor(FLinearColor(0.03f, 0.02f, 0.012f, BackdropAlpha));
+	}
 }
 
 void ULITSMenuWidget::HandlePlayClicked()
