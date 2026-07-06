@@ -28,8 +28,12 @@ struct FNPCTypeStyle
 {
 	const TCHAR* DisplayName;
 	const TCHAR* MeshPath;
-	FLinearColor OutfitPrimary;  // also drives the HUD swatch
+	FLinearColor OutfitPrimary;  // also drives the HUD swatch fallback
 	FLinearColor OutfitSecondary;
+	// Static portrait texture (cropped from real in-game shots by
+	// Scripts/import_portraits.py); HUD falls back to a color swatch if
+	// the asset is missing.
+	const TCHAR* PortraitPath;
 };
 
 namespace NPCTypeStyles
@@ -39,11 +43,11 @@ namespace NPCTypeStyles
 		// Saturated signature palettes — the vibrancy lives here; round
 		// similarity pulls them toward MutedBase later.
 		static const FNPCTypeStyle Styles[NPCTypeCount] = {
-			{ TEXT("Farmer"),     TEXT("/Game/LostInTheSauce/Characters/Farmer/Farmer"),         FLinearColor(0.25f, 0.42f, 0.72f), FLinearColor(0.82f, 0.68f, 0.32f) },
-			{ TEXT("King"),       TEXT("/Game/LostInTheSauce/Characters/King/King"),             FLinearColor(0.92f, 0.65f, 0.08f), FLinearColor(0.18f, 0.24f, 0.68f) },
-			{ TEXT("Witch"),      TEXT("/Game/LostInTheSauce/Characters/Witch/Witch"),           FLinearColor(0.50f, 0.13f, 0.72f), FLinearColor(0.20f, 0.14f, 0.10f) },
-			{ TEXT("Adventurer"), TEXT("/Game/LostInTheSauce/Characters/Adventurer/Adventurer"), FLinearColor(0.30f, 0.48f, 0.16f), FLinearColor(0.48f, 0.30f, 0.14f) },
-			{ TEXT("Squire"),     TEXT("/Game/LostInTheSauce/Characters/Medieval/Medieval"),     FLinearColor(0.82f, 0.34f, 0.10f), FLinearColor(0.88f, 0.80f, 0.58f) },
+			{ TEXT("Farmer"),     TEXT("/Game/LostInTheSauce/Characters/Farmer/Farmer"),         FLinearColor(0.25f, 0.42f, 0.72f), FLinearColor(0.82f, 0.68f, 0.32f), TEXT("/Game/LostInTheSauce/Portraits/P_Farmer") },
+			{ TEXT("King"),       TEXT("/Game/LostInTheSauce/Characters/King/King"),             FLinearColor(0.92f, 0.65f, 0.08f), FLinearColor(0.18f, 0.24f, 0.68f), TEXT("/Game/LostInTheSauce/Portraits/P_King") },
+			{ TEXT("Witch"),      TEXT("/Game/LostInTheSauce/Characters/Witch/Witch"),           FLinearColor(0.50f, 0.13f, 0.72f), FLinearColor(0.20f, 0.14f, 0.10f), TEXT("/Game/LostInTheSauce/Portraits/P_Witch") },
+			{ TEXT("Adventurer"), TEXT("/Game/LostInTheSauce/Characters/Adventurer/Adventurer"), FLinearColor(0.30f, 0.48f, 0.16f), FLinearColor(0.48f, 0.30f, 0.14f), TEXT("/Game/LostInTheSauce/Portraits/P_Adventurer") },
+			{ TEXT("Squire"),     TEXT("/Game/LostInTheSauce/Characters/Medieval/Medieval"),     FLinearColor(0.82f, 0.34f, 0.10f), FLinearColor(0.88f, 0.80f, 0.58f), TEXT("/Game/LostInTheSauce/Portraits/P_Squire") },
 		};
 		return Styles[FMath::Clamp(static_cast<int32>(Type), 0, NPCTypeCount - 1)];
 	}

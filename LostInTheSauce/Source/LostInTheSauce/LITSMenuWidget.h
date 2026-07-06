@@ -33,8 +33,15 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UBorder> Backdrop;
 
-	// Title-card intro: the backdrop starts fully opaque (masking the crowd
-	// spawn hitches) and melts to a translucent vignette once the round has
-	// finished setting up behind the menu.
+	UPROPERTY()
+	TObjectPtr<class UTextBlock> LoadingText;
+
+	UPROPERTY()
+	TObjectPtr<class UVerticalBox> Content;
+
+	// Intro: pure black + "Loading..." while the opening round assembles;
+	// when everything is ready, the complete title screen (title, buttons,
+	// live-crowd vignette) fades in as one piece.
 	float BackdropAlpha = 1.f;
+	float ContentOpacity = 0.f;
 };

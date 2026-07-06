@@ -42,16 +42,24 @@ bool ULITSMenuWidget::Initialize()
 	UOverlay* Root = WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(), TEXT("Root"));
 	WidgetTree->RootWidget = Root;
 
-	// Backdrop: starts fully OPAQUE (title card) so the first crowd spawn's
-	// loading hitches happen invisibly, then NativeTick melts it into a
-	// translucent vignette over the live market.
+	// Backdrop: pure black while the opening round assembles (all loading
+	// hitches invisible), then melts into a warm vignette over the market.
 	Backdrop = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
-	Backdrop->SetBrushColor(FLinearColor(0.03f, 0.02f, 0.012f, BackdropAlpha));
+	Backdrop->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, 1.f));
 	UOverlaySlot* DimSlot = Root->AddChildToOverlay(Backdrop);
 	DimSlot->SetHorizontalAlignment(HAlign_Fill);
 	DimSlot->SetVerticalAlignment(VAlign_Fill);
 
+	// Subtle loading hint so slow machines don't look frozen.
+	LoadingText = MakeText(WidgetTree, TEXT("Loading..."), 16, FLinearColor(0.55f, 0.52f, 0.45f), false);
+	UOverlaySlot* LoadingSlot = Root->AddChildToOverlay(LoadingText);
+	LoadingSlot->SetHorizontalAlignment(HAlign_Center);
+	LoadingSlot->SetVerticalAlignment(VAlign_Bottom);
+	LoadingSlot->SetPadding(FMargin(0.f, 0.f, 0.f, 48.f));
+
 	UVerticalBox* Column = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
+	Content = Column;
+	Content->SetRenderOpacity(0.f); // whole title screen appears only when ready
 	UOverlaySlot* ColumnSlot = Root->AddChildToOverlay(Column);
 	ColumnSlot->SetHorizontalAlignment(HAlign_Center);
 	ColumnSlot->SetVerticalAlignment(VAlign_Center);
@@ -104,18 +112,38 @@ void ULITSMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (!Backdrop)
+	if (!Backdrop || !Content)
 	{
 		return;
 	}
 	const ALITSGameMode* GameMode = GetWorld()->GetAuthGameMode<ALITSGameMode>();
-	// Stay opaque while the opening round is still assembling; then reveal.
 	const bool bWorldReady = GameMode && GameMode->GetFlow() != ERoundFlow::Transition;
-	const float Target = bWorldReady ? 0.72f : 1.f;
-	if (!FMath::IsNearlyEqual(BackdropAlpha, Target, 0.002f))
+
+	// Backdrop: black wall -> warm translucent vignette once ready.
+	const float TargetAlpha = bWorldReady ? 0.72f : 1.f;
+	if (!FMath::IsNearlyEqual(BackdropAlpha, TargetAlpha, 0.002f))
 	{
-		BackdropAlpha = FMath::FInterpTo(BackdropAlpha, Target, InDeltaTime, 1.8f);
-		Backdrop->SetBrushColor(FLinearColor(0.03f, 0.02f, 0.012f, BackdropAlpha));
+		BackdropAlpha = FMath::FInterpTo(BackdropAlpha, TargetAlpha, InDeltaTime, 1.6f);
+		const FLinearColor Warm(0.03f, 0.02f, 0.012f);
+		const float WarmBlend = (1.f - BackdropAlpha) / 0.28f; // 0 at black, 1 at vignette
+		Backdrop->SetBrushColor(FLinearColor(
+			Warm.R * WarmBlend, Warm.G * WarmBlend, Warm.B * WarmBlend, BackdropAlpha));
+	}
+
+	// Title screen content fades in as one piece; loading hint fades out.
+	const float TargetContent = bWorldReady ? 1.f : 0.f;
+	if (!FMath::IsNearlyEqual(ContentOpacity, TargetContent, 0.002f))
+	{
+		ContentOpacity = FMath::FInterpTo(ContentOpacity, TargetContent, InDeltaTime, 2.2f);
+		Content->SetRenderOpacity(ContentOpacity);
+		if (LoadingText)
+		{
+			LoadingText->SetRenderOpacity(1.f - ContentOpacity);
+		}
+	}
+	if (PlayButton)
+	{
+		PlayButton->SetIsEnabled(bWorldReady);
 	}
 }
 
