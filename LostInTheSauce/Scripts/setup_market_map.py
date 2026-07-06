@@ -209,12 +209,18 @@ if not find_by_label("NavBounds"):
 if not find_by_label("MarketPlayerStart"):
     spawn(unreal.PlayerStart, "MarketPlayerStart", (0, 0, 300))
 
-# --- Invisible camera boundary (closed box the orbit camera can't cross) --------
-# Decoupled from the hand-placed visible ramparts: a reliable, gap-free
-# collision cage at the play-area edge. Tagged "CamBoundary" so the camera
-# reads its extent for pan clamping, and it blocks the spring-arm probe so
-# the camera can never exit the arena. Hidden in game; tall and thick so the
-# probe can't slip past at any pitch.
+# --- Camera boundary walls (closed box the fly camera can't cross) --------------
+# The user positions these BY HAND — existing walls are never moved/rescaled
+# here. They render in game as solid stone (they double as the visual world
+# edge) and block the camera pawn's collision sphere.
+if not eal.does_asset_exist(f"{MAT_DIR}/MI_Stone"):
+    mi = asset_tools.create_asset("MI_Stone", MAT_DIR, unreal.MaterialInstanceConstant,
+                                  unreal.MaterialInstanceConstantFactoryNew())
+    mel.set_material_instance_parent(mi, npc_mat)
+    mel.set_material_instance_vector_parameter_value(
+        mi, "Color", unreal.LinearColor(0.52, 0.50, 0.46, 1.0))
+    eal.save_asset(f"{MAT_DIR}/MI_Stone")
+
 CAM_HALF = 3300.0
 CAM_H = 2500.0
 CAM_T = 200.0
@@ -225,14 +231,20 @@ for _cl, _loc, _sc in [
     ("CamBound_E", ( CAM_HALF, 0, CAM_H / 2), (CAM_T / 100.0, cam_run, CAM_H / 100.0)),
     ("CamBound_W", (-CAM_HALF, 0, CAM_H / 2), (CAM_T / 100.0, cam_run, CAM_H / 100.0)),
 ]:
-    _w = find_by_label(_cl) or spawn(unreal.StaticMeshActor, _cl, _loc)
-    _w.set_actor_location(unreal.Vector(*_loc), False, False)
+    _w = find_by_label(_cl)
+    if not _w:
+        # Only brand-new walls get the default transform.
+        _w = spawn(unreal.StaticMeshActor, _cl, _loc)
+        _wc = _w.static_mesh_component
+        _wc.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
+        _wc.set_static_mesh(CUBE)
+        _wc.set_editor_property("mobility", unreal.ComponentMobility.STATIC)
+        _w.set_actor_scale3d(unreal.Vector(*_sc))
     _wc = _w.static_mesh_component
     _wc.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
-    _wc.set_static_mesh(CUBE)
+    _wc.set_editor_property("hidden_in_game", False)  # solid, visible world edge
+    _wc.set_material(0, eal.load_asset(f"{MAT_DIR}/MI_Stone"))
     _wc.set_editor_property("mobility", unreal.ComponentMobility.STATIC)
-    _w.set_actor_scale3d(unreal.Vector(*_sc))
-    _wc.set_editor_property("hidden_in_game", True)
     _wc.set_collision_profile_name("BlockAll")
     _w.set_editor_property("tags", ["CamBoundary"])
 

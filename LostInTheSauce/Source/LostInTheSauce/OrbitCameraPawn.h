@@ -4,11 +4,15 @@
 #include "GameFramework/Pawn.h"
 #include "OrbitCameraPawn.generated.h"
 
-class USpringArmComponent;
 class UCameraComponent;
+class UFloatingPawnMovement;
+class USphereComponent;
 
-// Diorama camera: orbits the market center. Right-drag rotates, wheel zooms.
-// Input is polled directly from the player controller — no input assets needed.
+// Free-fly camera: WASD moves, Space/Ctrl up/down, Shift = faster, hold the
+// RIGHT mouse button to look around; cursor stays free otherwise for
+// hovering/clicking NPCs. A collision sphere + engine pawn movement keep it
+// out of buildings and inside the boundary walls — no hand-rolled clamping
+// against geometry.
 UCLASS()
 class LOSTINTHESAUCE_API AOrbitCameraPawn : public APawn
 {
@@ -20,46 +24,37 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "Camera")
-	TObjectPtr<USceneComponent> Pivot;
+	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
-	TObjectPtr<USpringArmComponent> SpringArm;
+	TObjectPtr<USphereComponent> CollisionSphere;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	TObjectPtr<UCameraComponent> Camera;
 
-	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float RotateSpeed = 4.0f; // degrees per unit of captured mouse delta
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	TObjectPtr<UFloatingPawnMovement> Movement;
 
-	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float ZoomStep = 250.f;
+	UPROPERTY(EditAnywhere, Category = "Fly")
+	float LookSpeed = 3.0f; // degrees per unit of captured mouse delta
 
-	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float MinZoom = 700.f;
+	UPROPERTY(EditAnywhere, Category = "Fly")
+	float SprintMultiplier = 2.2f;
 
-	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float MaxZoom = 3400.f; // capped so the view can't peek past the ramparts
+	UPROPERTY(EditAnywhere, Category = "Fly")
+	float MinHeight = 180.f;
 
-	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float PanSpeed = 1600.f; // cm/s at default zoom, scales with zoom level
-
-	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float PanLimit = 2100.f; // fallback pivot clamp if no walls are tagged
-
-protected:
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, Category = "Fly")
+	float MaxHeight = 2600.f;
 
 private:
-	// Read the "CameraBound"-tagged rampart actors and inset the pan clamp
-	// to their inner extent, so the pivot stays inside whatever walls the
-	// level author placed.
-	void ComputePanBoundsFromWalls();
+	// Belt-and-braces XY clamp read from the CamBoundary-tagged walls
+	// (collision already blocks; this guards against any physics tunneling).
+	void ComputeBoundsFromWalls();
 
-	float TargetArmLength = 2600.f;
-	float PitchDegrees = -55.f;
-	bool bDragging = false;
-	FVector2D DragAnchor = FVector2D::ZeroVector;
-	FVector2D PanMin = FVector2D(-2100.f, -2100.f);
-	FVector2D PanMax = FVector2D(2100.f, 2100.f);
+	float Yaw = 0.f;
+	float Pitch = -40.f;
+	bool bLooking = false;
+	FVector2D BoundsMin = FVector2D(-3200.f, -3200.f);
+	FVector2D BoundsMax = FVector2D(3200.f, 3200.f);
 };

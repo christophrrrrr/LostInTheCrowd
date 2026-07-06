@@ -22,6 +22,13 @@ void ALITSHUD::DrawHUD()
 		return;
 	}
 
+	// While the start menu is up, the game HUD stays completely dark — no
+	// ROUND banner, curtain or counters playing out behind the title screen.
+	if (GameMode->IsMenuPending())
+	{
+		return;
+	}
+
 	const FNPCTypeStyle& TargetStyle = NPCTypeStyles::Get(GameMode->GetTargetType());
 	const float CenterX = Canvas->SizeX * 0.5f;
 

@@ -1,30 +1,34 @@
 #include "OrbitCameraPawn.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/SphereComponent.h"
 #include "EngineUtils.h"
-#include "Framework/Application/SlateApplication.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PlayerController.h"
-#include "GameFramework/SpringArmComponent.h"
 
 AOrbitCameraPawn::AOrbitCameraPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	Pivot = CreateDefaultSubobject<USceneComponent>(TEXT("Pivot"));
-	RootComponent = Pivot;
-
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArm->SetupAttachment(Pivot);
-	SpringArm->TargetArmLength = TargetArmLength;
-	SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
-	// Slide the camera in when a building or wall is between it and the view
-	// center, so it never ends up inside geometry.
-	SpringArm->bDoCollisionTest = true;
-	SpringArm->ProbeSize = 22.f; // fat probe so it can't slip through thin walls
-	SpringArm->ProbeChannel = ECC_Camera;
+	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+	RootComponent = CollisionSphere;
+	CollisionSphere->InitSphereRadius(40.f);
+	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionSphere->SetCollisionObjectType(ECC_Pawn);
+	CollisionSphere->SetCollisionResponseToAllChannels(ECR_Block);
+	// Fly through the crowd, never shove it; and never eat the click-trace.
+	CollisionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	CollisionSphere->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	CollisionSphere->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(SpringArm);
+	Camera->SetupAttachment(CollisionSphere);
+
+	Movement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
+	Movement->UpdatedComponent = CollisionSphere;
+	Movement->MaxSpeed = 2400.f;
+	Movement->Acceleration = 8000.f;
+	Movement->Deceleration = 9000.f;
 
 	bUseControllerRotationYaw = false;
 }
@@ -32,10 +36,12 @@ AOrbitCameraPawn::AOrbitCameraPawn()
 void AOrbitCameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	ComputePanBoundsFromWalls();
+	Yaw = GetActorRotation().Yaw;
+	SetActorRotation(FRotator(Pitch, Yaw, 0.f));
+	ComputeBoundsFromWalls();
 }
 
-void AOrbitCameraPawn::ComputePanBoundsFromWalls()
+void AOrbitCameraPawn::ComputeBoundsFromWalls()
 {
 	FBox Bounds(ForceInit);
 	int32 WallCount = 0;
@@ -47,19 +53,11 @@ void AOrbitCameraPawn::ComputePanBoundsFromWalls()
 			++WallCount;
 		}
 	}
-
 	if (WallCount > 0 && Bounds.IsValid)
 	{
-		// Inset a couple of metres so the pivot stays clear of the walls.
-		const float Inset = 300.f;
-		PanMin = FVector2D(Bounds.Min.X + Inset, Bounds.Min.Y + Inset);
-		PanMax = FVector2D(Bounds.Max.X - Inset, Bounds.Max.Y - Inset);
-	}
-	else
-	{
-		// No tagged ramparts — fall back to the symmetric limit.
-		PanMin = FVector2D(-PanLimit, -PanLimit);
-		PanMax = FVector2D(PanLimit, PanLimit);
+		const float Inset = 80.f;
+		BoundsMin = FVector2D(Bounds.Min.X + Inset, Bounds.Min.Y + Inset);
+		BoundsMax = FVector2D(Bounds.Max.X - Inset, Bounds.Max.Y - Inset);
 	}
 }
 
@@ -73,28 +71,24 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		return;
 	}
 
-	// Rotation: while the right mouse is held, capture the mouse (GameOnly
-	// input mode hides the cursor and locks it) and read the raw device
-	// delta. This is the standard, glitch-free approach — no per-frame
-	// cursor warping (which desynced against zoom/pan and caused the
-	// "bug out"). On release we restore the cursor for clicking NPCs.
+	// --- Look: hold right mouse, captured-mouse delta (glitch-free) --------
 	if (PC->IsInputKeyDown(EKeys::RightMouseButton))
 	{
-		if (!bDragging)
+		if (!bLooking)
 		{
-			bDragging = true;
+			bLooking = true;
 			PC->SetInputMode(FInputModeGameOnly());
 			PC->bShowMouseCursor = false;
 		}
 		float DeltaX = 0.f, DeltaY = 0.f;
 		PC->GetInputMouseDelta(DeltaX, DeltaY);
-		AddActorWorldRotation(FRotator(0.f, DeltaX * RotateSpeed, 0.f));
-		PitchDegrees = FMath::Clamp(PitchDegrees - DeltaY * RotateSpeed, -80.f, -32.f);
-		SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
+		Yaw += DeltaX * LookSpeed;
+		Pitch = FMath::Clamp(Pitch + DeltaY * LookSpeed, -85.f, 35.f);
+		SetActorRotation(FRotator(Pitch, Yaw, 0.f));
 	}
-	else if (bDragging)
+	else if (bLooking)
 	{
-		bDragging = false;
+		bLooking = false;
 		FInputModeGameAndUI InputMode;
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		InputMode.SetHideCursorDuringCapture(false);
@@ -102,34 +96,30 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		PC->bShowMouseCursor = true;
 	}
 
-	// WASD pans camera-relative (W = away from the viewer), faster when
-	// zoomed out, clamped so the pivot stays inside the market.
-	FVector2D PanInput = FVector2D::ZeroVector;
-	if (PC->IsInputKeyDown(EKeys::W)) { PanInput.X += 1.f; }
-	if (PC->IsInputKeyDown(EKeys::S)) { PanInput.X -= 1.f; }
-	if (PC->IsInputKeyDown(EKeys::D)) { PanInput.Y += 1.f; }
-	if (PC->IsInputKeyDown(EKeys::A)) { PanInput.Y -= 1.f; }
-	if (!PanInput.IsNearlyZero())
+	// --- Move: WASD where you look, Space/Ctrl vertical, Shift sprint ------
+	const FRotator LookRotation(Pitch, Yaw, 0.f);
+	FVector Wish = FVector::ZeroVector;
+	if (PC->IsInputKeyDown(EKeys::W)) { Wish += LookRotation.Vector(); }
+	if (PC->IsInputKeyDown(EKeys::S)) { Wish -= LookRotation.Vector(); }
+	const FVector Right = FRotationMatrix(FRotator(0.f, Yaw, 0.f)).GetUnitAxis(EAxis::Y);
+	if (PC->IsInputKeyDown(EKeys::D)) { Wish += Right; }
+	if (PC->IsInputKeyDown(EKeys::A)) { Wish -= Right; }
+	if (PC->IsInputKeyDown(EKeys::SpaceBar)) { Wish += FVector::UpVector; }
+	if (PC->IsInputKeyDown(EKeys::LeftControl)) { Wish -= FVector::UpVector; }
+
+	if (!Wish.IsNearlyZero())
 	{
-		const float ZoomScale = FMath::Clamp(SpringArm->TargetArmLength / 2600.f, 0.4f, 1.6f);
-		const FVector LocalMove(PanInput.X, PanInput.Y, 0.f);
-		const FVector WorldMove = FRotator(0.f, GetActorRotation().Yaw, 0.f).RotateVector(LocalMove)
-			* PanSpeed * ZoomScale * DeltaSeconds;
-		FVector NewLocation = GetActorLocation() + WorldMove;
-		NewLocation.X = FMath::Clamp(NewLocation.X, PanMin.X, PanMax.X);
-		NewLocation.Y = FMath::Clamp(NewLocation.Y, PanMin.Y, PanMax.Y);
-		SetActorLocation(NewLocation);
+		const float Sprint = PC->IsInputKeyDown(EKeys::LeftShift) ? SprintMultiplier : 1.f;
+		AddMovementInput(Wish.GetSafeNormal(), Sprint);
 	}
 
-	if (PC->WasInputKeyJustPressed(EKeys::MouseScrollUp))
+	// --- Belt-and-braces bounds (collision blocks; this stops tunneling) ---
+	FVector Location = GetActorLocation();
+	Location.X = FMath::Clamp(Location.X, BoundsMin.X, BoundsMax.X);
+	Location.Y = FMath::Clamp(Location.Y, BoundsMin.Y, BoundsMax.Y);
+	Location.Z = FMath::Clamp(Location.Z, MinHeight, MaxHeight);
+	if (!Location.Equals(GetActorLocation()))
 	{
-		TargetArmLength -= ZoomStep;
+		SetActorLocation(Location);
 	}
-	if (PC->WasInputKeyJustPressed(EKeys::MouseScrollDown))
-	{
-		TargetArmLength += ZoomStep;
-	}
-	TargetArmLength = FMath::Clamp(TargetArmLength, MinZoom, MaxZoom);
-
-	SpringArm->TargetArmLength = FMath::FInterpTo(SpringArm->TargetArmLength, TargetArmLength, DeltaSeconds, 10.f);
 }

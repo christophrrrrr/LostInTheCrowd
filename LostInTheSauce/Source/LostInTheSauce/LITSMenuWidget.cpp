@@ -80,7 +80,8 @@ bool ULITSMenuWidget::Initialize()
 	AddRow(MakeText(WidgetTree,
 		TEXT("Find the character named at the top and click them.\n")
 		TEXT("Wrong guesses are free - but the crowd grows every round.\n\n")
-		TEXT("WASD pan   |   Right-drag rotate   |   Wheel zoom   |   R next round"),
+		TEXT("WASD fly   |   Hold right mouse: look   |   Space / Ctrl: up & down\n")
+		TEXT("Shift: faster   |   R: next round"),
 		16, FLinearColor(0.8f, 0.78f, 0.72f), false), 36.f);
 
 	QuitButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
