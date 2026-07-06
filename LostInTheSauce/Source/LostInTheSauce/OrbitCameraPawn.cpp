@@ -1,6 +1,7 @@
 #include "OrbitCameraPawn.h"
 
 #include "Camera/CameraComponent.h"
+#include "EngineUtils.h"
 #include "Framework/Application/SlateApplication.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -16,12 +17,50 @@ AOrbitCameraPawn::AOrbitCameraPawn()
 	SpringArm->SetupAttachment(Pivot);
 	SpringArm->TargetArmLength = TargetArmLength;
 	SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
-	SpringArm->bDoCollisionTest = false; // diorama cam must never bump into stalls
+	// Slide the camera in when a building or wall is between it and the view
+	// center, so it never ends up inside geometry.
+	SpringArm->bDoCollisionTest = true;
+	SpringArm->ProbeSize = 14.f;
+	SpringArm->ProbeChannel = ECC_Camera;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
 	bUseControllerRotationYaw = false;
+}
+
+void AOrbitCameraPawn::BeginPlay()
+{
+	Super::BeginPlay();
+	ComputePanBoundsFromWalls();
+}
+
+void AOrbitCameraPawn::ComputePanBoundsFromWalls()
+{
+	FBox Bounds(ForceInit);
+	int32 WallCount = 0;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		if (It->ActorHasTag(TEXT("CameraBound")))
+		{
+			Bounds += It->GetComponentsBoundingBox(true);
+			++WallCount;
+		}
+	}
+
+	if (WallCount > 0 && Bounds.IsValid)
+	{
+		// Inset a couple of metres so the pivot stays clear of the walls.
+		const float Inset = 300.f;
+		PanMin = FVector2D(Bounds.Min.X + Inset, Bounds.Min.Y + Inset);
+		PanMax = FVector2D(Bounds.Max.X - Inset, Bounds.Max.Y - Inset);
+	}
+	else
+	{
+		// No tagged ramparts — fall back to the symmetric limit.
+		PanMin = FVector2D(-PanLimit, -PanLimit);
+		PanMax = FVector2D(PanLimit, PanLimit);
+	}
 }
 
 void AOrbitCameraPawn::Tick(float DeltaSeconds)
@@ -77,8 +116,8 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		const FVector WorldMove = FRotator(0.f, GetActorRotation().Yaw, 0.f).RotateVector(LocalMove)
 			* PanSpeed * ZoomScale * DeltaSeconds;
 		FVector NewLocation = GetActorLocation() + WorldMove;
-		NewLocation.X = FMath::Clamp(NewLocation.X, -PanLimit, PanLimit);
-		NewLocation.Y = FMath::Clamp(NewLocation.Y, -PanLimit, PanLimit);
+		NewLocation.X = FMath::Clamp(NewLocation.X, PanMin.X, PanMax.X);
+		NewLocation.Y = FMath::Clamp(NewLocation.Y, PanMin.Y, PanMax.Y);
 		SetActorLocation(NewLocation);
 	}
 

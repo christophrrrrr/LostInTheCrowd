@@ -89,6 +89,8 @@ def wall(label, loc, scale):
     c.set_editor_property("mobility", unreal.ComponentMobility.STATIC)
     a.set_actor_scale3d(unreal.Vector(*scale))
     c.set_material(0, STONE)
+    # Runtime tag: the orbit camera reads these to clamp its pan bounds.
+    a.set_editor_property("tags", ["CameraBound"])
     return a
 
 

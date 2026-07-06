@@ -88,12 +88,13 @@ def spawn(cls, label, loc, rot=(0.0, 0.0, 0.0)):
 # --- Lighting (find-or-create, then refresh properties) -------------------------
 sun = find_by_label("Sun") or spawn(unreal.DirectionalLight, "Sun", (0, 0, 2000))
 # Higher sun = shorter shadows; soft penumbra so nothing hides in hard black.
-sun.set_actor_rotation(unreal.Rotator(0.0, -62.0, 35.0), False)
+sun.set_actor_rotation(unreal.Rotator(0.0, -58.0, 35.0), False)
 sun_comp = sun.get_component_by_class(unreal.DirectionalLightComponent)
 sun_comp.set_editor_property("atmosphere_sun_light", True)
-sun_comp.set_editor_property("intensity", 42000.0)
+# Softer, warmer sun — the previous strong white light washed the textures out.
+sun_comp.set_editor_property("intensity", 34000.0)
 # NOTE: unreal.Color positional args are B,G,R,A — use named args.
-sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=244, b=224, a=255))
+sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=232, b=196, a=255))
 sun_comp.set_editor_property("light_source_angle", 3.0)  # soft shadows
 
 if not find_by_label("Sky"):
@@ -107,8 +108,23 @@ fog_comp.set_editor_property("start_distance", 3000.0)
 skylight = find_by_label("SkyLight") or spawn(unreal.SkyLight, "SkyLight", (0, 0, 500))
 skylight_comp = skylight.get_component_by_class(unreal.SkyLightComponent)
 skylight_comp.set_editor_property("real_time_capture", True)
-# Strong ambient fill so shadowed sides read bright — "everything lit".
-skylight_comp.set_editor_property("intensity", 4.5)
+# Moderate ambient — enough to keep shadows readable without washing the
+# town's own colors to white (4.5 was way too strong).
+skylight_comp.set_editor_property("intensity", 1.6)
+
+# --- Warm brazier accent lights around the town --------------------------------
+import math as _math
+for _i in range(6):
+    _label = f"Brazier_{_i}"
+    _ang = _math.radians(_i * 60.0 + 20.0)
+    _bx, _by = _math.cos(_ang) * 1700.0, _math.sin(_ang) * 1700.0
+    _lamp = find_by_label(_label) or spawn(unreal.PointLight, _label, (_bx, _by, 450))
+    _lamp.set_actor_location(unreal.Vector(_bx, _by, 450), False, False)
+    _lc = _lamp.get_component_by_class(unreal.PointLightComponent)
+    _lc.set_editor_property("intensity", 40000.0)
+    _lc.set_editor_property("attenuation_radius", 1400.0)
+    _lc.set_editor_property("light_color", unreal.Color(r=255, g=170, b=95, a=255))
+    _lc.set_editor_property("cast_shadows", False)  # perf + avoids harsh pools
 
 ppv = find_by_label("ExposureVolume") or spawn(unreal.PostProcessVolume, "ExposureVolume", (0, 0, 0))
 ppv.set_editor_property("unbound", True)

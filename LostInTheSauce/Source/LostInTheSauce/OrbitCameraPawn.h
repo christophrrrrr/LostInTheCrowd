@@ -45,11 +45,21 @@ protected:
 	float PanSpeed = 1600.f; // cm/s at default zoom, scales with zoom level
 
 	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float PanLimit = 2100.f; // keeps the pivot inside the market walls
+	float PanLimit = 2100.f; // fallback pivot clamp if no walls are tagged
+
+protected:
+	virtual void BeginPlay() override;
 
 private:
+	// Read the "CameraBound"-tagged rampart actors and inset the pan clamp
+	// to their inner extent, so the pivot stays inside whatever walls the
+	// level author placed.
+	void ComputePanBoundsFromWalls();
+
 	float TargetArmLength = 2600.f;
 	float PitchDegrees = -55.f;
 	bool bDragging = false;
 	FVector2D DragAnchor = FVector2D::ZeroVector;
+	FVector2D PanMin = FVector2D(-2100.f, -2100.f);
+	FVector2D PanMax = FVector2D(2100.f, 2100.f);
 };

@@ -40,6 +40,12 @@ ANPCCharacter::ANPCCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 360.f, 0.f);
 	GetCharacterMovement()->MaxWalkSpeed = 160.f;
 
+	// RVO avoidance: NPCs steer around each other instead of piling up when
+	// their paths cross.
+	GetCharacterMovement()->bUseRVOAvoidance = true;
+	GetCharacterMovement()->AvoidanceConsiderationRadius = 120.f;
+	GetCharacterMovement()->AvoidanceWeight = 0.5f;
+
 	AIControllerClass = ANPCAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
