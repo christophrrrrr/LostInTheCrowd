@@ -87,12 +87,14 @@ def spawn(cls, label, loc, rot=(0.0, 0.0, 0.0)):
 
 # --- Lighting (find-or-create, then refresh properties) -------------------------
 sun = find_by_label("Sun") or spawn(unreal.DirectionalLight, "Sun", (0, 0, 2000))
-sun.set_actor_rotation(unreal.Rotator(0.0, -50.0, 35.0), False)
+# Higher sun = shorter shadows; soft penumbra so nothing hides in hard black.
+sun.set_actor_rotation(unreal.Rotator(0.0, -62.0, 35.0), False)
 sun_comp = sun.get_component_by_class(unreal.DirectionalLightComponent)
 sun_comp.set_editor_property("atmosphere_sun_light", True)
-sun_comp.set_editor_property("intensity", 50000.0)
+sun_comp.set_editor_property("intensity", 42000.0)
 # NOTE: unreal.Color positional args are B,G,R,A — use named args.
-sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=240, b=214, a=255))
+sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=244, b=224, a=255))
+sun_comp.set_editor_property("light_source_angle", 3.0)  # soft shadows
 
 if not find_by_label("Sky"):
     spawn(unreal.SkyAtmosphere, "Sky", (0, 0, 0))
@@ -105,7 +107,8 @@ fog_comp.set_editor_property("start_distance", 3000.0)
 skylight = find_by_label("SkyLight") or spawn(unreal.SkyLight, "SkyLight", (0, 0, 500))
 skylight_comp = skylight.get_component_by_class(unreal.SkyLightComponent)
 skylight_comp.set_editor_property("real_time_capture", True)
-skylight_comp.set_editor_property("intensity", 2.0)
+# Strong ambient fill so shadowed sides read bright — "everything lit".
+skylight_comp.set_editor_property("intensity", 4.5)
 
 ppv = find_by_label("ExposureVolume") or spawn(unreal.PostProcessVolume, "ExposureVolume", (0, 0, 0))
 ppv.set_editor_property("unbound", True)

@@ -51,7 +51,9 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		{
 			const FVector2D Delta = CursorPos - DragAnchor;
 			AddActorWorldRotation(FRotator(0.f, Delta.X * RotateSpeed, 0.f));
-			PitchDegrees = FMath::Clamp(PitchDegrees - Delta.Y * RotateSpeed, -80.f, -20.f);
+			// Min pitch kept steep enough that the ramparts stay between the
+			// camera and the hidden strays beyond the platform.
+			PitchDegrees = FMath::Clamp(PitchDegrees - Delta.Y * RotateSpeed, -80.f, -32.f);
 			SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
 			Slate.SetCursorPos(DragAnchor);
 		}

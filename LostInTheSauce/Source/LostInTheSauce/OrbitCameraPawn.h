@@ -39,7 +39,7 @@ protected:
 	float MinZoom = 700.f;
 
 	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float MaxZoom = 4200.f;
+	float MaxZoom = 3400.f; // capped so the view can't peek past the ramparts
 
 	UPROPERTY(EditAnywhere, Category = "Orbit")
 	float PanSpeed = 1600.f; // cm/s at default zoom, scales with zoom level
