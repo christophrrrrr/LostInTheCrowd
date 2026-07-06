@@ -1,0 +1,38 @@
+{
+  "town_mesh_exists": true,
+  "actors": [
+    {
+      "label": "Floor",
+      "class": "StaticMeshActor",
+      "loc": [
+        0.0,
+        0.0,
+        -25.0
+      ],
+      "mesh": "Cube"
+    },
+    {
+      "label": "MarketPlayerStart",
+      "class": "PlayerStart",
+      "loc": [
+        0.0,
+        0.0,
+        300.0
+      ]
+    },
+    {
+      "label": "NavBounds",
+      "class": "NavMeshBoundsVolume",
+      "loc": [
+        0.0,
+        0.0,
+        200.0
+      ]
+    }
+  ],
+  "town_bounds": [
+    4751.6,
+    7889.4,
+    1509.5
+  ]
+}

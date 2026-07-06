@@ -167,7 +167,9 @@ if not eal.does_asset_exist(f"{MAT_DIR}/M_Highlight"):
 checkpoint("materials")
 
 # --- Base floor + navigation + player start (find-or-create only) ----------------
-if not find_by_label("Floor"):
+# The Town environment mesh (place_environment.py) is the real ground once
+# present; only fall back to a graybox floor when there is no town.
+if not find_by_label("Floor") and not find_by_label("TownEnv"):
     floor = spawn(unreal.StaticMeshActor, "Floor", (0, 0, -25))
     comp = floor.static_mesh_component
     comp.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)

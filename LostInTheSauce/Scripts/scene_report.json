@@ -1,0 +1,35 @@
+{
+  "scenes": {
+    "medieval_fantasy_book": [
+      {
+        "path": "/Game/LostInTheSauce/Scenes/medieval_fantasy_book/TEST2",
+        "size": [
+          10306.6,
+          7231.7,
+          4640.6
+        ],
+        "min_z": -2320.3,
+        "center": [
+          -479.4,
+          27.8
+        ]
+      }
+    ],
+    "modular_lowpoly_medieval_environment": [
+      {
+        "path": "/Game/LostInTheSauce/Scenes/modular_lowpoly_medieval_environment/MediEval_Scene",
+        "size": [
+          4751.6,
+          7889.4,
+          1509.5
+        ],
+        "min_z": -403.4,
+        "center": [
+          583.4,
+          -2255.9
+        ]
+      }
+    ]
+  },
+  "errors": []
+}

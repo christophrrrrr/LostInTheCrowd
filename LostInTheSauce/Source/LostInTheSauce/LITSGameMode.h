@@ -62,7 +62,7 @@ public:
 	int32 MaxNPCCount = 140;
 
 	UPROPERTY(EditAnywhere, Category = "Round")
-	float SpawnRadius = 1900.f;
+	float SpawnRadius = 3000.f;
 
 	// How many NPCs get destroyed/spawned per batch tick during a
 	// transition. Keeps the per-frame cost flat instead of one 100-actor
