@@ -30,7 +30,7 @@ protected:
 	TObjectPtr<UCameraComponent> Camera;
 
 	UPROPERTY(EditAnywhere, Category = "Orbit")
-	float RotateSpeed = 0.35f; // degrees per screen pixel dragged
+	float RotateSpeed = 4.0f; // degrees per unit of captured mouse delta
 
 	UPROPERTY(EditAnywhere, Category = "Orbit")
 	float ZoomStep = 250.f;

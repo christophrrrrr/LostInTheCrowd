@@ -20,7 +20,7 @@ AOrbitCameraPawn::AOrbitCameraPawn()
 	// Slide the camera in when a building or wall is between it and the view
 	// center, so it never ends up inside geometry.
 	SpringArm->bDoCollisionTest = true;
-	SpringArm->ProbeSize = 14.f;
+	SpringArm->ProbeSize = 22.f; // fat probe so it can't slip through thin walls
 	SpringArm->ProbeChannel = ECC_Camera;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -41,7 +41,7 @@ void AOrbitCameraPawn::ComputePanBoundsFromWalls()
 	int32 WallCount = 0;
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
-		if (It->ActorHasTag(TEXT("CameraBound")))
+		if (It->ActorHasTag(TEXT("CamBoundary")))
 		{
 			Bounds += It->GetComponentsBoundingBox(true);
 			++WallCount;
@@ -73,33 +73,33 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		return;
 	}
 
-	// Orbit by anchoring the OS cursor (Slate reads/writes desktop
-	// coordinates directly). This is deliberately independent of viewport
-	// capture and input-mode state, which desync after clicks/zooms and
-	// killed earlier implementations of this drag.
-	if (PC->IsInputKeyDown(EKeys::RightMouseButton) && FSlateApplication::IsInitialized())
+	// Rotation: while the right mouse is held, capture the mouse (GameOnly
+	// input mode hides the cursor and locks it) and read the raw device
+	// delta. This is the standard, glitch-free approach — no per-frame
+	// cursor warping (which desynced against zoom/pan and caused the
+	// "bug out"). On release we restore the cursor for clicking NPCs.
+	if (PC->IsInputKeyDown(EKeys::RightMouseButton))
 	{
-		FSlateApplication& Slate = FSlateApplication::Get();
-		const FVector2D CursorPos = Slate.GetCursorPos();
 		if (!bDragging)
 		{
 			bDragging = true;
-			DragAnchor = CursorPos;
+			PC->SetInputMode(FInputModeGameOnly());
+			PC->bShowMouseCursor = false;
 		}
-		else
-		{
-			const FVector2D Delta = CursorPos - DragAnchor;
-			AddActorWorldRotation(FRotator(0.f, Delta.X * RotateSpeed, 0.f));
-			// Min pitch kept steep enough that the ramparts stay between the
-			// camera and the hidden strays beyond the platform.
-			PitchDegrees = FMath::Clamp(PitchDegrees - Delta.Y * RotateSpeed, -80.f, -32.f);
-			SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
-			Slate.SetCursorPos(DragAnchor);
-		}
+		float DeltaX = 0.f, DeltaY = 0.f;
+		PC->GetInputMouseDelta(DeltaX, DeltaY);
+		AddActorWorldRotation(FRotator(0.f, DeltaX * RotateSpeed, 0.f));
+		PitchDegrees = FMath::Clamp(PitchDegrees - DeltaY * RotateSpeed, -80.f, -32.f);
+		SpringArm->SetRelativeRotation(FRotator(PitchDegrees, 0.f, 0.f));
 	}
-	else
+	else if (bDragging)
 	{
 		bDragging = false;
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		PC->SetInputMode(InputMode);
+		PC->bShowMouseCursor = true;
 	}
 
 	// WASD pans camera-relative (W = away from the viewer), faster when

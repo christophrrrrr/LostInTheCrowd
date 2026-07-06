@@ -91,10 +91,11 @@ sun = find_by_label("Sun") or spawn(unreal.DirectionalLight, "Sun", (0, 0, 2000)
 sun.set_actor_rotation(unreal.Rotator(0.0, -58.0, 35.0), False)
 sun_comp = sun.get_component_by_class(unreal.DirectionalLightComponent)
 sun_comp.set_editor_property("atmosphere_sun_light", True)
-# Softer, warmer sun — the previous strong white light washed the textures out.
-sun_comp.set_editor_property("intensity", 34000.0)
+# Dim, warm sun — strong white light was blowing the ground/buildings to
+# pure white and killing their colors.
+sun_comp.set_editor_property("intensity", 16000.0)
 # NOTE: unreal.Color positional args are B,G,R,A — use named args.
-sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=232, b=196, a=255))
+sun_comp.set_editor_property("light_color", unreal.Color(r=255, g=220, b=170, a=255))
 sun_comp.set_editor_property("light_source_angle", 3.0)  # soft shadows
 
 if not find_by_label("Sky"):
@@ -108,9 +109,8 @@ fog_comp.set_editor_property("start_distance", 3000.0)
 skylight = find_by_label("SkyLight") or spawn(unreal.SkyLight, "SkyLight", (0, 0, 500))
 skylight_comp = skylight.get_component_by_class(unreal.SkyLightComponent)
 skylight_comp.set_editor_property("real_time_capture", True)
-# Moderate ambient — enough to keep shadows readable without washing the
-# town's own colors to white (4.5 was way too strong).
-skylight_comp.set_editor_property("intensity", 1.6)
+# Low warm ambient — fills shadows without washing colors out.
+skylight_comp.set_editor_property("intensity", 1.0)
 
 # --- Warm brazier accent lights around the town --------------------------------
 import math as _math
@@ -131,8 +131,9 @@ ppv.set_editor_property("unbound", True)
 pp_settings = ppv.get_editor_property("settings")
 pp_settings.set_editor_property("override_auto_exposure_min_brightness", True)
 pp_settings.set_editor_property("override_auto_exposure_max_brightness", True)
-pp_settings.set_editor_property("auto_exposure_min_brightness", 11.8)
-pp_settings.set_editor_property("auto_exposure_max_brightness", 12.8)
+# Higher target = the auto-exposure darkens the image, preventing blow-out.
+pp_settings.set_editor_property("auto_exposure_min_brightness", 12.6)
+pp_settings.set_editor_property("auto_exposure_max_brightness", 13.6)
 pp_settings.set_editor_property("override_motion_blur_amount", True)
 pp_settings.set_editor_property("motion_blur_amount", 0.0)
 pp_settings.set_editor_property("override_color_saturation", True)
@@ -207,6 +208,33 @@ if not find_by_label("NavBounds"):
 
 if not find_by_label("MarketPlayerStart"):
     spawn(unreal.PlayerStart, "MarketPlayerStart", (0, 0, 300))
+
+# --- Invisible camera boundary (closed box the orbit camera can't cross) --------
+# Decoupled from the hand-placed visible ramparts: a reliable, gap-free
+# collision cage at the play-area edge. Tagged "CamBoundary" so the camera
+# reads its extent for pan clamping, and it blocks the spring-arm probe so
+# the camera can never exit the arena. Hidden in game; tall and thick so the
+# probe can't slip past at any pitch.
+CAM_HALF = 3300.0
+CAM_H = 2500.0
+CAM_T = 200.0
+cam_run = (CAM_HALF * 2 + CAM_T * 2) / 100.0
+for _cl, _loc, _sc in [
+    ("CamBound_N", (0,  CAM_HALF, CAM_H / 2), (cam_run, CAM_T / 100.0, CAM_H / 100.0)),
+    ("CamBound_S", (0, -CAM_HALF, CAM_H / 2), (cam_run, CAM_T / 100.0, CAM_H / 100.0)),
+    ("CamBound_E", ( CAM_HALF, 0, CAM_H / 2), (CAM_T / 100.0, cam_run, CAM_H / 100.0)),
+    ("CamBound_W", (-CAM_HALF, 0, CAM_H / 2), (CAM_T / 100.0, cam_run, CAM_H / 100.0)),
+]:
+    _w = find_by_label(_cl) or spawn(unreal.StaticMeshActor, _cl, _loc)
+    _w.set_actor_location(unreal.Vector(*_loc), False, False)
+    _wc = _w.static_mesh_component
+    _wc.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
+    _wc.set_static_mesh(CUBE)
+    _wc.set_editor_property("mobility", unreal.ComponentMobility.STATIC)
+    _w.set_actor_scale3d(unreal.Vector(*_sc))
+    _wc.set_editor_property("hidden_in_game", True)
+    _wc.set_collision_profile_name("BlockAll")
+    _w.set_editor_property("tags", ["CamBoundary"])
 
 world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
 unreal.SystemLibrary.execute_console_command(world, "RebuildNavigation")
