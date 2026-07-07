@@ -76,23 +76,35 @@ bool ULITSMenuWidget::Initialize()
 	AddRow(MakeText(WidgetTree, TEXT("One of them is not like the others."), 20,
 		FLinearColor(0.9f, 0.88f, 0.82f), false), 8.f);
 
-	PlayButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
-	UTextBlock* PlayLabel = MakeText(WidgetTree, TEXT("PLAY"), 30, FLinearColor(0.05f, 0.04f, 0.02f));
-	PlayButton->AddChild(PlayLabel);
-	if (UButtonSlot* PlaySlot = Cast<UButtonSlot>(PlayLabel->Slot))
+	auto MakeModeButton = [&](const FString& Label, const FString& Blurb, const FLinearColor& Color) -> UButton*
 	{
-		PlaySlot->SetPadding(FMargin(48.f, 10.f));
-	}
-	PlayButton->SetBackgroundColor(FLinearColor(1.f, 0.8f, 0.25f));
-	PlayButton->OnClicked.AddDynamic(this, &ULITSMenuWidget::HandlePlayClicked);
-	AddRow(PlayButton, 42.f);
+		UButton* Button = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
+		UTextBlock* BLabel = MakeText(WidgetTree, Label, 26, FLinearColor(0.05f, 0.04f, 0.02f));
+		Button->AddChild(BLabel);
+		if (UButtonSlot* BSlot = Cast<UButtonSlot>(BLabel->Slot))
+		{
+			BSlot->SetPadding(FMargin(40.f, 10.f));
+		}
+		Button->SetBackgroundColor(Color);
+		AddRow(Button, 24.f);
+		AddRow(MakeText(WidgetTree, Blurb, 14, FLinearColor(0.8f, 0.78f, 0.72f), false), 4.f);
+		return Button;
+	};
+
+	PlayButton = MakeModeButton(TEXT("ENDLESS"),
+		TEXT("Find the one target. Every win, the crowd grows and colors converge."),
+		FLinearColor(1.f, 0.8f, 0.25f));
+	PlayButton->OnClicked.AddDynamic(this, &ULITSMenuWidget::HandleEndlessClicked);
+
+	TimeAttackButton = MakeModeButton(TEXT("TIME ATTACK"),
+		TEXT("Find all 10 targets before the clock. Each clear cuts 10 seconds."),
+		FLinearColor(0.95f, 0.55f, 0.3f));
+	TimeAttackButton->OnClicked.AddDynamic(this, &ULITSMenuWidget::HandleTimeAttackClicked);
 
 	AddRow(MakeText(WidgetTree,
-		TEXT("Find the character named at the top and click them.\n")
-		TEXT("Wrong guesses are free - but the crowd grows every round.\n\n")
 		TEXT("WASD fly   |   Hold right mouse: look   |   Space / Ctrl: up & down\n")
-		TEXT("Shift: faster   |   R: next round"),
-		16, FLinearColor(0.8f, 0.78f, 0.72f), false), 36.f);
+		TEXT("Shift: faster   |   Esc: pause"),
+		15, FLinearColor(0.75f, 0.73f, 0.67f), false), 30.f);
 
 	QuitButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
 	UTextBlock* QuitLabel = MakeText(WidgetTree, TEXT("Quit"), 16, FLinearColor(0.9f, 0.88f, 0.82f));
@@ -145,14 +157,28 @@ void ULITSMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		PlayButton->SetIsEnabled(bWorldReady);
 	}
+	if (TimeAttackButton)
+	{
+		TimeAttackButton->SetIsEnabled(bWorldReady);
+	}
 }
 
-void ULITSMenuWidget::HandlePlayClicked()
+void ULITSMenuWidget::HandleEndlessClicked()
 {
 	if (ALITSGameMode* GameMode = GetWorld()->GetAuthGameMode<ALITSGameMode>())
 	{
 		GameMode->PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_UIClick"));
-		GameMode->StartFromMenu();
+		GameMode->StartMode(EGameMode::Endless);
+	}
+	RemoveFromParent();
+}
+
+void ULITSMenuWidget::HandleTimeAttackClicked()
+{
+	if (ALITSGameMode* GameMode = GetWorld()->GetAuthGameMode<ALITSGameMode>())
+	{
+		GameMode->PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_UIClick"));
+		GameMode->StartMode(EGameMode::TimeAttack);
 	}
 	RemoveFromParent();
 }

@@ -9,6 +9,7 @@
 #include "Fonts/FontMeasure.h"
 #include "Framework/Application/SlateApplication.h"
 #include "LITSGameMode.h"
+#include "NPCCharacter.h"
 #include "NPCTypes.h"
 #include "Styling/CoreStyle.h"
 
@@ -43,6 +44,28 @@ void ALITSHUD::DrawHUD()
 		RoundItem.SlateFontInfo = FCoreStyle::GetDefaultFontStyle("Bold", 18);
 		RoundItem.EnableShadow(FLinearColor(0.f, 0.f, 0.f, 0.6f));
 		Canvas->DrawItem(RoundItem);
+	}
+
+	// --- Time Attack: clock + found counter -------------------------------
+	if (GameMode->IsTimeAttack())
+	{
+		const float Remaining = GameMode->GetTimeRemaining();
+		const int32 Mins = FMath::FloorToInt(Remaining / 60.f);
+		const int32 Secs = FMath::FloorToInt(Remaining) % 60;
+		// Flash red under 10s.
+		const bool bLow = Remaining <= 10.f;
+		const FLinearColor ClockColor = bLow
+			? FLinearColor(1.f, 0.3f, 0.25f, 0.6f + 0.4f * FMath::Abs(FMath::Sin(GetWorld()->GetTimeSeconds() * 6.f)))
+			: FLinearColor(1.f, 0.92f, 0.7f);
+		DrawCenteredText(FString::Printf(TEXT("%01d:%02d"), Mins, Secs), ClockColor, CenterX, 72.f, 2.4f);
+
+		const FString Found = FString::Printf(TEXT("Found  %d / %d"),
+			GameMode->GetTargetsFound(), GameMode->GetTargetCount());
+		FCanvasTextItem FoundItem(FVector2D(Canvas->SizeX - 210.f, 24.f), FText::FromString(Found),
+			GEngine->GetLargeFont(), FLinearColor(0.6f, 1.f, 0.5f));
+		FoundItem.SlateFontInfo = FCoreStyle::GetDefaultFontStyle("Bold", 20);
+		FoundItem.EnableShadow(FLinearColor(0.f, 0.f, 0.f, 0.6f));
+		Canvas->DrawItem(FoundItem);
 	}
 
 	// Portrait of the target type beside the banner (static texture cropped
@@ -92,6 +115,48 @@ void ALITSHUD::DrawHUD()
 
 		DrawCenteredText(FString::Printf(TEXT("Press R for round %d"), GameMode->GetRoundNumber() + 1),
 			FLinearColor::White, CenterX, Canvas->SizeY * 0.38f + 120.f, 1.5f);
+	}
+
+	// --- Time Attack reveal: pulsing red markers on missed targets ----------
+	if (GameMode->GetFlow() == ERoundFlow::Revealing)
+	{
+		DrawCenteredText(TEXT("TIME'S UP!"), FLinearColor(1.f, 0.35f, 0.3f), CenterX, Canvas->SizeY * 0.14f, 2.6f);
+		DrawCenteredText(TEXT("You missed these:"), FLinearColor(0.95f, 0.9f, 0.85f), CenterX, Canvas->SizeY * 0.14f + 60.f, 1.3f);
+
+		const float Pulse = 0.4f + 0.6f * FMath::Abs(FMath::Sin(GetWorld()->GetTimeSeconds() * 5.f));
+		TArray<ANPCCharacter*> Missed;
+		GameMode->GetMissedTargets(Missed);
+		for (ANPCCharacter* NPC : Missed)
+		{
+			// Project the head to screen; HUD draws on top of everything, so
+			// the markers read straight through walls.
+			const FVector Head = NPC->GetActorLocation() + FVector(0.f, 0.f, 95.f);
+			const FVector Screen = Canvas->Project(Head);
+			if (Screen.Z <= 0.f)
+			{
+				continue; // behind the camera
+			}
+			const float S = 46.f;
+			const FLinearColor Red(1.f, 0.15f, 0.12f, Pulse);
+			const float X = Screen.X - S * 0.5f;
+			const float Y = Screen.Y - S * 0.75f;
+			// Hollow box outline.
+			DrawRect(Red, X, Y, S, 4.f);
+			DrawRect(Red, X, Y + S, S, 4.f);
+			DrawRect(Red, X, Y, 4.f, S);
+			DrawRect(Red, X + S, Y, 4.f, S + 4.f);
+		}
+	}
+
+	// --- Time Attack results screen (buttons handled by the widget) ---------
+	if (GameMode->GetFlow() == ERoundFlow::Results)
+	{
+		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.6f), 0.f, 0.f, Canvas->SizeX, Canvas->SizeY);
+		DrawCenteredText(TEXT("TIME ATTACK OVER"), FLinearColor(1.f, 0.85f, 0.3f), CenterX, Canvas->SizeY * 0.30f, 2.8f);
+		DrawCenteredText(FString::Printf(TEXT("Rounds cleared: %d"), GameMode->GetRoundsCleared()),
+			FLinearColor(0.95f, 0.92f, 0.82f), CenterX, Canvas->SizeY * 0.30f + 70.f, 1.7f);
+		DrawCenteredText(FString::Printf(TEXT("Targets found: %d"), GameMode->GetTotalFound()),
+			FLinearColor(0.95f, 0.92f, 0.82f), CenterX, Canvas->SizeY * 0.30f + 110.f, 1.7f);
 	}
 
 	// --- Round transition curtain (drawn on top of everything) --------------

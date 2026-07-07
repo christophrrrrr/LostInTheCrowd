@@ -27,6 +27,8 @@
 
 ALITSGameMode::ALITSGameMode()
 {
+	PrimaryActorTick.bCanEverTick = true; // time-attack clock
+
 	DefaultPawnClass = AOrbitCameraPawn::StaticClass();
 	PlayerControllerClass = ALITSPlayerController::StaticClass();
 	HUDClass = ALITSHUD::StaticClass();
@@ -38,6 +40,11 @@ ALITSGameMode::ALITSGameMode()
 		!FParse::Param(FCommandLine::Get(), TEXT("LITSKeepMenu")))
 	{
 		bMenuPending = false;
+	}
+	// Dev: -LITSTimeAttack starts automation runs in Time Attack mode.
+	if (FParse::Param(FCommandLine::Get(), TEXT("LITSTimeAttack")))
+	{
+		CurrentMode = EGameMode::TimeAttack;
 	}
 }
 
@@ -137,10 +144,10 @@ void ALITSGameMode::StartRoundTransition()
 	SpawnedNPCs.Empty();
 
 	WrongGuesses = 0;
+	TargetsFound = 0;
 	TargetType = static_cast<ENPCType>(FMath::RandRange(0, NPCTypeCount - 1));
 
-	// Dev: -LITSForceTarget=<DisplayName> pins the round target (and thereby
-	// which character the AutoShot close-up camera inspects).
+	// Dev: -LITSForceTarget=<DisplayName> pins the round target.
 	FString ForcedTarget;
 	if (FParse::Value(FCommandLine::Get(), TEXT("LITSForceTarget="), ForcedTarget))
 	{
@@ -154,21 +161,43 @@ void ALITSGameMode::StartRoundTransition()
 		}
 	}
 
-	// Exactly one NPC of the target type per round. The batch ticker pops
-	// from the END of this array, so the target goes last = spawns first
-	// (SpawnedNPCs[0] must be the target for the AutoShot close-up).
 	PendingSpawnTypes.Reset();
-	const int32 CrowdSize = GetCrowdSize();
-	for (int32 i = 1; i < CrowdSize; ++i)
+	if (CurrentMode == EGameMode::TimeAttack)
 	{
-		int32 Pick = FMath::RandRange(0, NPCTypeCount - 2);
-		if (Pick >= static_cast<int32>(TargetType))
+		// A fixed crowd with exactly TATargetCount of the target type; the
+		// rest are other types. Shuffled so the targets are spread out.
+		for (int32 i = 0; i < TACrowdSize; ++i)
 		{
-			++Pick;
+			if (i < TATargetCount)
+			{
+				PendingSpawnTypes.Add(TargetType);
+			}
+			else
+			{
+				int32 Pick = FMath::RandRange(0, NPCTypeCount - 2);
+				if (Pick >= static_cast<int32>(TargetType)) { ++Pick; }
+				PendingSpawnTypes.Add(static_cast<ENPCType>(Pick));
+			}
 		}
-		PendingSpawnTypes.Add(static_cast<ENPCType>(Pick));
+		for (int32 i = PendingSpawnTypes.Num() - 1; i > 0; --i)
+		{
+			PendingSpawnTypes.Swap(i, FMath::RandRange(0, i));
+		}
 	}
-	PendingSpawnTypes.Add(TargetType);
+	else
+	{
+		// Endless: exactly one target. The batch ticker pops from the END,
+		// so the target goes last = spawns first (SpawnedNPCs[0] = target,
+		// needed by the AutoShot close-up).
+		const int32 CrowdSize = GetCrowdSize();
+		for (int32 i = 1; i < CrowdSize; ++i)
+		{
+			int32 Pick = FMath::RandRange(0, NPCTypeCount - 2);
+			if (Pick >= static_cast<int32>(TargetType)) { ++Pick; }
+			PendingSpawnTypes.Add(static_cast<ENPCType>(Pick));
+		}
+		PendingSpawnTypes.Add(TargetType);
+	}
 
 	GetWorldTimerManager().SetTimer(BatchTimerHandle, this, &ALITSGameMode::TransitionBatchTick, 0.05f, true);
 }
@@ -197,28 +226,64 @@ void ALITSGameMode::TransitionBatchTick()
 	if (PendingDestroy.Num() == 0 && PendingSpawnTypes.Num() == 0 && Elapsed >= TransitionMinSeconds)
 	{
 		GetWorldTimerManager().ClearTimer(BatchTimerHandle);
-		// Round 1 waits on the start screen; the crowd wanders behind it.
-		Flow = bMenuPending ? ERoundFlow::Menu : ERoundFlow::Playing;
-		TransitionEndTime = GetWorld()->GetTimeSeconds();
-		RoundStartTime = GetWorld()->GetTimeSeconds();
-		UE_LOG(LogTemp, Log, TEXT("Round %d started: find the %s among %d NPCs"),
-			RoundNumber, NPCTypeStyles::Get(TargetType).DisplayName, SpawnedNPCs.Num());
-
-		// Watchdog: if navigation is somehow dead a few seconds into the
-		// round (rebuild race, tile corruption — cause intermittent), force
-		// a full rebuild instead of leaving the crowd frozen.
-		FTimerHandle NavWatchdogHandle;
-		GetWorldTimerManager().SetTimer(NavWatchdogHandle, [this]()
-		{
-			UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-			FNavLocation Probe;
-			if (NavSystem && !NavSystem->GetRandomReachablePointInRadius(FVector::ZeroVector, 1500.f, Probe))
-			{
-				UE_LOG(LogTemp, Warning, TEXT("LITS: nav probe dead after round start - forcing navigation rebuild"));
-				NavSystem->Build();
-			}
-		}, 3.f, false);
+		OnRoundReady();
 	}
+}
+
+void ALITSGameMode::OnRoundReady()
+{
+	// Round 1 waits on the start screen; the crowd wanders behind it.
+	Flow = bMenuPending ? ERoundFlow::Menu : ERoundFlow::Playing;
+	TransitionEndTime = GetWorld()->GetTimeSeconds();
+	RoundStartTime = GetWorld()->GetTimeSeconds();
+
+	if (CurrentMode == EGameMode::TimeAttack)
+	{
+		CurrentTimeLimit = FMath::Max(TAMinTime, TABaseTime - (RoundNumber - 1) * TATimeStep);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Round %d started (%s): find %s among %d NPCs"),
+		RoundNumber, IsTimeAttack() ? TEXT("TimeAttack") : TEXT("Endless"),
+		NPCTypeStyles::Get(TargetType).DisplayName, SpawnedNPCs.Num());
+
+	// Watchdog: if navigation is somehow dead a few seconds into the round
+	// (rebuild race, tile corruption), force a rebuild rather than freeze.
+	FTimerHandle NavWatchdogHandle;
+	GetWorldTimerManager().SetTimer(NavWatchdogHandle, [this]()
+	{
+		UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
+		FNavLocation Probe;
+		if (NavSystem && !NavSystem->GetRandomReachablePointInRadius(FVector::ZeroVector, 1500.f, Probe))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("LITS: nav probe dead after round start - forcing rebuild"));
+			NavSystem->Build();
+		}
+	}, 3.f, false);
+}
+
+void ALITSGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (CurrentMode == EGameMode::TimeAttack && Flow == ERoundFlow::Playing
+		&& GetTimeRemaining() <= 0.f)
+	{
+		EnterReveal();
+	}
+}
+
+void ALITSGameMode::EnterReveal()
+{
+	Flow = ERoundFlow::Revealing;
+	RevealStartTime = GetWorld()->GetTimeSeconds();
+	PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_WrongGuess"));
+
+	// After the reveal, show the results screen.
+	FTimerHandle ResultsHandle;
+	GetWorldTimerManager().SetTimer(ResultsHandle, [this]()
+	{
+		Flow = ERoundFlow::Results;
+	}, RevealSeconds, false);
 }
 
 void ALITSGameMode::SetupPortraitCapture(const FString& TypeName)
@@ -475,35 +540,51 @@ void ALITSGameMode::DumpDiagnostics()
 	UE_LOG(LogTemp, Log, TEXT("LITS-DIAG ======================================"));
 }
 
-void ALITSGameMode::StartFromMenu()
+void ALITSGameMode::StartMode(EGameMode Mode)
 {
-	if (Flow == ERoundFlow::Menu)
-	{
-		bMenuPending = false;
-		Flow = ERoundFlow::Playing;
-		TransitionEndTime = GetWorld()->GetTimeSeconds();
-		RoundStartTime = GetWorld()->GetTimeSeconds();
-		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_GameStart"));
-	}
-	else
-	{
-		// Menu closed before the intro transition finished — just note it;
-		// the transition end will flip straight to Playing.
-		bMenuPending = false;
-	}
+	CurrentMode = Mode;
+	bMenuPending = false;
+	RoundNumber = 1;
+	TotalFound = 0;
+	PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_GameStart"));
+	// Always spawn a fresh round matching the chosen mode (the menu crowd was
+	// a generic endless background).
+	StartRoundTransition();
 }
 
 void ALITSGameMode::RestartFromRoundOne()
 {
 	RoundNumber = 1;
+	TotalFound = 0;
 	StartRoundTransition();
 }
 
 void ALITSGameMode::ReturnToTitle()
 {
 	RoundNumber = 1;
+	TotalFound = 0;
 	bMenuPending = true;
 	StartRoundTransition();
+}
+
+float ALITSGameMode::GetTimeRemaining() const
+{
+	if (CurrentMode != EGameMode::TimeAttack)
+	{
+		return 0.f;
+	}
+	return FMath::Max(0.f, CurrentTimeLimit - (GetWorld()->GetTimeSeconds() - RoundStartTime));
+}
+
+void ALITSGameMode::GetMissedTargets(TArray<ANPCCharacter*>& Out) const
+{
+	for (ANPCCharacter* NPC : SpawnedNPCs)
+	{
+		if (IsValid(NPC) && NPC->GetNPCType() == TargetType && !NPC->IsFound())
+		{
+			Out.Add(NPC);
+		}
+	}
 }
 
 void ALITSGameMode::StartAmbientAudio()
@@ -539,7 +620,36 @@ void ALITSGameMode::HandleNPCClicked(ANPCCharacter* NPC)
 		return;
 	}
 
-	if (NPC->GetNPCType() == TargetType)
+	const bool bIsTarget = NPC->GetNPCType() == TargetType;
+
+	if (CurrentMode == EGameMode::TimeAttack)
+	{
+		if (bIsTarget && !NPC->IsFound())
+		{
+			NPC->MarkFound();
+			++TargetsFound;
+			++TotalFound;
+			PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_Found"));
+			if (TargetsFound >= TATargetCount)
+			{
+				// Round cleared: next round with 10s less on the clock.
+				++RoundNumber;
+				PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_Reward"));
+				StartRoundTransition();
+			}
+		}
+		else if (!bIsTarget)
+		{
+			++WrongGuesses;
+			LastWrongClickTime = GetWorld()->GetTimeSeconds();
+			NPC->ReactToWrongClick();
+			PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_WrongGuess"));
+		}
+		return;
+	}
+
+	// Endless.
+	if (bIsTarget)
 	{
 		Flow = ERoundFlow::Won;
 		RoundWonTime = GetWorld()->GetTimeSeconds();

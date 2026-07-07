@@ -29,6 +29,10 @@ public:
 	// Fresnel rim overlay while the cursor is over this NPC.
 	void SetHighlighted(bool bHighlighted);
 
+	// Time Attack: mark this target found (green rim, stops, non-clickable).
+	void MarkFound();
+	bool IsFound() const { return bFound; }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -63,5 +67,6 @@ private:
 	TObjectPtr<UAnimSequence> CurrentLoop;
 
 	bool bCelebrating = false;
+	bool bFound = false;
 	float OneShotEndTime = 0.f;
 };

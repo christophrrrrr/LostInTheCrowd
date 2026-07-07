@@ -19,13 +19,19 @@ public:
 
 private:
 	UFUNCTION()
-	void HandlePlayClicked();
+	void HandleEndlessClicked();
+
+	UFUNCTION()
+	void HandleTimeAttackClicked();
 
 	UFUNCTION()
 	void HandleQuitClicked();
 
 	UPROPERTY()
-	TObjectPtr<UButton> PlayButton;
+	TObjectPtr<UButton> PlayButton; // Endless
+
+	UPROPERTY()
+	TObjectPtr<UButton> TimeAttackButton;
 
 	UPROPERTY()
 	TObjectPtr<UButton> QuitButton;

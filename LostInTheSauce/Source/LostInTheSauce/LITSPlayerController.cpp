@@ -6,6 +6,7 @@
 #include "LITSGameMode.h"
 #include "LITSMenuWidget.h"
 #include "LITSPauseWidget.h"
+#include "LITSResultsWidget.h"
 #include "NPCCharacter.h"
 
 ALITSPlayerController::ALITSPlayerController()
@@ -42,6 +43,25 @@ void ALITSPlayerController::PlayerTick(float DeltaTime)
 	if (!GameMode)
 	{
 		return;
+	}
+
+	// Time Attack results screen: show/remove the Retry/Menu buttons.
+	if (GameMode->GetFlow() == ERoundFlow::Results)
+	{
+		if (!ResultsWidget.IsValid())
+		{
+			if (ULITSResultsWidget* W = CreateWidget<ULITSResultsWidget>(this, ULITSResultsWidget::StaticClass()))
+			{
+				W->AddToViewport(40);
+				ResultsWidget = W;
+			}
+		}
+		return; // no hovering/clicking NPCs on the results screen
+	}
+	if (ResultsWidget.IsValid())
+	{
+		ResultsWidget->RemoveFromParent();
+		ResultsWidget.Reset();
 	}
 
 	// ESC pauses (skip while the start menu is still up).

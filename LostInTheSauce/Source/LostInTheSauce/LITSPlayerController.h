@@ -18,4 +18,5 @@ protected:
 
 private:
 	TWeakObjectPtr<class ANPCCharacter> HoveredNPC;
+	TWeakObjectPtr<class ULITSResultsWidget> ResultsWidget;
 };

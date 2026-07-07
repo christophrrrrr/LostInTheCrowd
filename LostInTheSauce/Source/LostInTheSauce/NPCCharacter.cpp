@@ -259,10 +259,29 @@ void ANPCCharacter::ApplyCrowdColors()
 
 void ANPCCharacter::SetHighlighted(bool bHighlighted)
 {
+	if (bFound)
+	{
+		return; // keep the green found-rim; don't override on hover
+	}
 	UMaterialInterface* HighlightMaterial = bHighlighted
 		? LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/LostInTheSauce/Materials/M_Highlight"))
 		: nullptr;
 	GetMesh()->SetOverlayMaterial(HighlightMaterial);
+}
+
+void ANPCCharacter::MarkFound()
+{
+	bFound = true;
+	CelebrateFound(); // stop wandering + wave in place
+
+	// Green rim so found targets read as done and stand out from the crowd.
+	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr,
+		TEXT("/Game/LostInTheSauce/Materials/M_Highlight")))
+	{
+		UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Base, this);
+		MID->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.15f, 1.0f, 0.25f));
+		GetMesh()->SetOverlayMaterial(MID);
+	}
 }
 
 void ANPCCharacter::Tick(float DeltaSeconds)
