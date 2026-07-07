@@ -1,11 +1,18 @@
 #include "LITSGameMode.h"
 
 #include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/PointLight.h"
+#include "Engine/PostProcessVolume.h"
+#include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
 #include "Kismet/GameplayStatics.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Sound/SoundBase.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 #include "NavMesh/RecastNavMesh.h"
@@ -37,6 +44,26 @@ ALITSGameMode::ALITSGameMode()
 void ALITSGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Portrait factory: -LITSPortrait=<Type> sets up a lone, front-lit,
+	// camera-facing character on a studio backdrop, screenshots it, exits.
+	FString PortraitType;
+	if (FParse::Value(FCommandLine::Get(), TEXT("LITSPortrait="), PortraitType))
+	{
+		SetupPortraitCapture(PortraitType);
+		GetWorldTimerManager().SetTimer(AutoShotTimerHandle, []()
+		{
+			FScreenshotRequest::RequestScreenshot(TEXT("LITSAutoShot"), false, false);
+		}, 2.5f, false);
+		FTimerHandle QuitHandle;
+		GetWorldTimerManager().SetTimer(QuitHandle, []()
+		{
+			FGenericPlatformMisc::RequestExit(false);
+		}, 4.f, false);
+		return;
+	}
+
+	StartAmbientAudio();
 	StartRoundTransition();
 
 	// Dev loop: -LITSAutoShot lets automation capture a rendered frame plus a
@@ -109,6 +136,7 @@ void ALITSGameMode::StartRoundTransition()
 	PendingDestroy.Append(SpawnedNPCs);
 	SpawnedNPCs.Empty();
 
+	WrongGuesses = 0;
 	TargetType = static_cast<ENPCType>(FMath::RandRange(0, NPCTypeCount - 1));
 
 	// Dev: -LITSForceTarget=<DisplayName> pins the round target (and thereby
@@ -172,6 +200,7 @@ void ALITSGameMode::TransitionBatchTick()
 		// Round 1 waits on the start screen; the crowd wanders behind it.
 		Flow = bMenuPending ? ERoundFlow::Menu : ERoundFlow::Playing;
 		TransitionEndTime = GetWorld()->GetTimeSeconds();
+		RoundStartTime = GetWorld()->GetTimeSeconds();
 		UE_LOG(LogTemp, Log, TEXT("Round %d started: find the %s among %d NPCs"),
 			RoundNumber, NPCTypeStyles::Get(TargetType).DisplayName, SpawnedNPCs.Num());
 
@@ -189,6 +218,102 @@ void ALITSGameMode::TransitionBatchTick()
 				NavSystem->Build();
 			}
 		}, 3.f, false);
+	}
+}
+
+void ALITSGameMode::SetupPortraitCapture(const FString& TypeName)
+{
+	bMenuPending = false;
+	bPortraitMode = true;
+	Flow = ERoundFlow::Playing; // no transition curtain
+
+	ENPCType Type = ENPCType::Farmer;
+	for (int32 i = 0; i < NPCTypeCount; ++i)
+	{
+		if (TypeName.Equals(NPCTypeStyles::Get(static_cast<ENPCType>(i)).DisplayName, ESearchCase::IgnoreCase))
+		{
+			Type = static_cast<ENPCType>(i);
+			break;
+		}
+	}
+
+	// A private studio far above the map so no town geometry intrudes.
+	const FVector Booth(0.f, 0.f, 20000.f);
+
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Character faces +X at actor yaw 0; the camera sits on the +X side.
+	ANPCCharacter* Model = GetWorld()->SpawnActor<ANPCCharacter>(
+		ANPCCharacter::StaticClass(), Booth, FRotator::ZeroRotator, Params);
+	if (!Model)
+	{
+		return;
+	}
+	Model->SetNPCType(Type);
+	if (AController* C = Model->GetController())
+	{
+		C->Destroy();
+	}
+	Model->GetCharacterMovement()->DisableMovement();
+
+	// Neutral backdrop panel behind the model (-X side, behind its back).
+	if (AStaticMeshActor* Panel = GetWorld()->SpawnActor<AStaticMeshActor>(
+		Booth + FVector(-220.f, 0.f, 60.f), FRotator::ZeroRotator))
+	{
+		Panel->SetMobility(EComponentMobility::Movable);
+		if (UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube")))
+		{
+			Panel->GetStaticMeshComponent()->SetStaticMesh(Cube);
+		}
+		Panel->SetActorScale3D(FVector(0.2f, 6.f, 6.f));
+		if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr,
+			TEXT("/Game/LostInTheSauce/Materials/M_NPCColor")))
+		{
+			UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Base, this);
+			MID->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.34f, 0.32f, 0.30f));
+			Panel->GetStaticMeshComponent()->SetMaterial(0, MID);
+		}
+	}
+
+	// Three-point studio lighting so the character is evenly bright, no
+	// black side.
+	auto AddLight = [this, Booth](const FVector& Offset, float Intensity)
+	{
+		if (APointLight* L = GetWorld()->SpawnActor<APointLight>(Booth + Offset, FRotator::ZeroRotator))
+		{
+			L->SetMobility(EComponentMobility::Movable);
+			L->SetLightColor(FLinearColor(1.f, 0.98f, 0.95f));
+			if (UPointLightComponent* LC = Cast<UPointLightComponent>(L->GetLightComponent()))
+			{
+				LC->SetIntensity(Intensity);
+				LC->SetAttenuationRadius(2000.f);
+				LC->SetCastShadows(false);
+			}
+		}
+	};
+	AddLight(FVector(260.f, 0.f, 150.f), 300000.f);   // front key
+	AddLight(FVector(120.f, -260.f, 90.f), 150000.f); // left fill
+	AddLight(FVector(120.f, 260.f, 90.f), 150000.f);  // right fill
+
+	// Camera directly in front (+X), framing head-to-feet. Exposure is set on
+	// the camera itself (a bounded volume's runtime bounds are unreliable) so
+	// the town's dark clamp doesn't apply to this dim void.
+	const FVector CamLoc = Booth + FVector(360.f, 0.f, 45.f);
+	const FVector LookAt = Booth + FVector(0.f, 0.f, 15.f);
+	ACameraActor* Cam = GetWorld()->SpawnActor<ACameraActor>(CamLoc, (LookAt - CamLoc).Rotation());
+	if (Cam)
+	{
+		UCameraComponent* CamComp = Cam->GetCameraComponent();
+		CamComp->SetFieldOfView(42.f);
+		FPostProcessSettings& PP = CamComp->PostProcessSettings;
+		PP.bOverride_AutoExposureMethod = true;
+		PP.AutoExposureMethod = EAutoExposureMethod::AEM_Manual;
+		PP.bOverride_AutoExposureBias = true;
+		PP.AutoExposureBias = 3.5f; // manual EV; higher = brighter here
+		if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+		{
+			PC->SetViewTargetWithBlend(Cam, 0.f);
+		}
 	}
 }
 
@@ -219,11 +344,47 @@ void ALITSGameMode::SpawnOneNPC(ENPCType Type)
 bool ALITSGameMode::FindSpawnPoint(FVector& OutLocation) const
 {
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-	FNavLocation NavLocation;
-	if (NavSystem && NavSystem->GetRandomReachablePointInRadius(FVector::ZeroVector, SpawnRadius, NavLocation))
+	if (NavSystem)
 	{
-		OutLocation = NavLocation.Location;
-		return true;
+		// Rejection-sample a few candidates and keep the one that is furthest
+		// from the nearest already-spawned NPC, so the crowd starts spread
+		// out across the streets instead of clumped at a few points.
+		FNavLocation Best;
+		float BestMinDistSq = -1.f;
+		bool bFound = false;
+		for (int32 Attempt = 0; Attempt < 6; ++Attempt)
+		{
+			FNavLocation Candidate;
+			if (!NavSystem->GetRandomReachablePointInRadius(FVector::ZeroVector, SpawnRadius, Candidate))
+			{
+				continue;
+			}
+			bFound = true;
+			float NearestSq = TNumericLimits<float>::Max();
+			for (const ANPCCharacter* NPC : SpawnedNPCs)
+			{
+				if (IsValid(NPC))
+				{
+					NearestSq = FMath::Min(NearestSq,
+						FVector::DistSquared2D(Candidate.Location, NPC->GetActorLocation()));
+				}
+			}
+			if (NearestSq > BestMinDistSq)
+			{
+				BestMinDistSq = NearestSq;
+				Best = Candidate;
+			}
+			// Good enough spacing — take it without exhausting all attempts.
+			if (NearestSq > FMath::Square(MinSpawnSpacing))
+			{
+				break;
+			}
+		}
+		if (bFound)
+		{
+			OutLocation = Best.Location;
+			return true;
+		}
 	}
 
 	// Navmesh missing: scatter on the flat floor so the round still works.
@@ -321,6 +482,7 @@ void ALITSGameMode::StartFromMenu()
 		bMenuPending = false;
 		Flow = ERoundFlow::Playing;
 		TransitionEndTime = GetWorld()->GetTimeSeconds();
+		RoundStartTime = GetWorld()->GetTimeSeconds();
 		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_GameStart"));
 	}
 	else
@@ -329,6 +491,37 @@ void ALITSGameMode::StartFromMenu()
 		// the transition end will flip straight to Playing.
 		bMenuPending = false;
 	}
+}
+
+void ALITSGameMode::RestartFromRoundOne()
+{
+	RoundNumber = 1;
+	StartRoundTransition();
+}
+
+void ALITSGameMode::ReturnToTitle()
+{
+	RoundNumber = 1;
+	bMenuPending = true;
+	StartRoundTransition();
+}
+
+void ALITSGameMode::StartAmbientAudio()
+{
+	if (USoundBase* Music = LoadObject<USoundBase>(nullptr, TEXT("/Game/LostInTheSauce/Sounds/S_Music")))
+	{
+		MusicComponent = UGameplayStatics::SpawnSound2D(this, Music, 0.5f, 1.f, 0.f, nullptr, true);
+	}
+	if (USoundBase* Crowd = LoadObject<USoundBase>(nullptr, TEXT("/Game/LostInTheSauce/Sounds/S_Crowd")))
+	{
+		CrowdComponent = UGameplayStatics::SpawnSound2D(this, Crowd, 0.6f, 1.f, 0.f, nullptr, true);
+	}
+}
+
+float ALITSGameMode::GetRoundElapsedSeconds() const
+{
+	const float End = (Flow == ERoundFlow::Won) ? RoundWonTime : GetWorld()->GetTimeSeconds();
+	return FMath::Max(0.f, End - RoundStartTime);
 }
 
 void ALITSGameMode::PlayGameSound(const TCHAR* AssetPath) const
@@ -349,12 +542,14 @@ void ALITSGameMode::HandleNPCClicked(ANPCCharacter* NPC)
 	if (NPC->GetNPCType() == TargetType)
 	{
 		Flow = ERoundFlow::Won;
+		RoundWonTime = GetWorld()->GetTimeSeconds();
 		NPC->CelebrateFound();
 		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_Found"));
 		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_Reward"));
 	}
 	else
 	{
+		++WrongGuesses;
 		LastWrongClickTime = GetWorld()->GetTimeSeconds();
 		NPC->ReactToWrongClick();
 		PlayGameSound(TEXT("/Game/LostInTheSauce/Sounds/S_WrongGuess"));

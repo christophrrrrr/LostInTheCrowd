@@ -2,8 +2,10 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "LITSGameMode.h"
 #include "LITSMenuWidget.h"
+#include "LITSPauseWidget.h"
 #include "NPCCharacter.h"
 
 ALITSPlayerController::ALITSPlayerController()
@@ -40,6 +42,21 @@ void ALITSPlayerController::PlayerTick(float DeltaTime)
 	if (!GameMode)
 	{
 		return;
+	}
+
+	// ESC pauses (skip while the start menu is still up).
+	if (WasInputKeyJustPressed(EKeys::Escape) && !GameMode->IsMenuPending()
+		&& !UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		if (ULITSPauseWidget* Pause = CreateWidget<ULITSPauseWidget>(this, ULITSPauseWidget::StaticClass()))
+		{
+			Pause->AddToViewport(50);
+			UGameplayStatics::SetGamePaused(GetWorld(), true);
+			FInputModeUIOnly InputMode;
+			SetInputMode(InputMode);
+			bShowMouseCursor = true;
+			Pause->SetKeyboardFocus();
+		}
 	}
 
 	// One cursor trace per frame drives both the hover highlight and clicks.

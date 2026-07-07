@@ -35,8 +35,17 @@ public:
 	// Start screen handoff: round 1 already simmers behind the menu.
 	void StartFromMenu();
 	bool IsMenuPending() const { return bMenuPending; }
+	bool IsPortraitMode() const { return bPortraitMode; }
+
+	// Pause-menu actions.
+	void RestartFromRoundOne();
+	void ReturnToTitle();
 
 	void PlayGameSound(const TCHAR* AssetPath) const;
+
+	// Win-screen stats.
+	int32 GetWrongGuesses() const { return WrongGuesses; }
+	float GetRoundElapsedSeconds() const;
 
 	ENPCType GetTargetType() const { return TargetType; }
 	ERoundFlow GetFlow() const { return Flow; }
@@ -62,6 +71,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Round")
 	float SpawnRadius = 3000.f;
 
+	// Minimum desired spacing between spawned NPCs (best-effort).
+	UPROPERTY(EditAnywhere, Category = "Round")
+	float MinSpawnSpacing = 220.f;
+
 	// How many NPCs get destroyed/spawned per batch tick during a
 	// transition. Keeps the per-frame cost flat instead of one 100-actor
 	// hitch when a round restarts.
@@ -77,14 +90,26 @@ protected:
 	void SpawnOneNPC(ENPCType Type);
 	bool FindSpawnPoint(FVector& OutLocation) const;
 	void DumpDiagnostics();
+	void SetupPortraitCapture(const FString& TypeName);
+	void StartAmbientAudio();
 
 	ENPCType TargetType = ENPCType::Farmer;
 	ERoundFlow Flow = ERoundFlow::Transition;
 	bool bMenuPending = true;
+	bool bPortraitMode = false;
 	float LastWrongClickTime = -1000.f;
 	int32 RoundNumber = 1;
+	int32 WrongGuesses = 0;
+	float RoundStartTime = 0.f;
+	float RoundWonTime = 0.f;
 	float TransitionStartTime = 0.f;
 	float TransitionEndTime = -1000.f;
+
+	UPROPERTY()
+	TObjectPtr<class UAudioComponent> MusicComponent;
+
+	UPROPERTY()
+	TObjectPtr<class UAudioComponent> CrowdComponent;
 
 	TArray<ENPCType> PendingSpawnTypes;
 

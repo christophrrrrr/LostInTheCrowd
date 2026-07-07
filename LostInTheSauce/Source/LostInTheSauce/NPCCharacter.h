@@ -43,6 +43,12 @@ private:
 	void ApplyMesh();
 	void ApplyCrowdColors();
 	void PlayLooping(UAnimSequence* Anim);
+	void UpdateFootsteps(float Speed, float DeltaSeconds);
+
+	UPROPERTY()
+	TObjectPtr<class USoundBase> FootstepSound;
+
+	float StrideAccumulator = 0.f;
 
 	UPROPERTY()
 	TObjectPtr<UAnimSequence> WalkAnim;

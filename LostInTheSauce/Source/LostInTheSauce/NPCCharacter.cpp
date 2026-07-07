@@ -4,11 +4,15 @@
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Animation/Skeleton.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "LITSGameMode.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/CommandLine.h"
+#include "Sound/SoundBase.h"
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NPCAIController.h"
@@ -283,10 +287,49 @@ void ANPCCharacter::Tick(float DeltaSeconds)
 		{
 			Node->SetPlayRate(FMath::Clamp(Speed / 170.f, 0.7f, 1.4f));
 		}
+		UpdateFootsteps(Speed, DeltaSeconds);
 	}
 	else
 	{
 		PlayLooping(IdleAnim);
+	}
+}
+
+void ANPCCharacter::UpdateFootsteps(float Speed, float DeltaSeconds)
+{
+	// Only nearby NPCs are audible, so cull by distance to the view: keeps a
+	// 100-strong crowd from spawning a hundred sounds a second.
+	const APlayerCameraManager* CamMgr = GetWorld()->GetFirstPlayerController()
+		? GetWorld()->GetFirstPlayerController()->PlayerCameraManager : nullptr;
+	if (!CamMgr)
+	{
+		return;
+	}
+	const float DistSq = FVector::DistSquared(GetActorLocation(), CamMgr->GetCameraLocation());
+	if (DistSq > 2600.f * 2600.f)
+	{
+		return;
+	}
+
+	// Accumulate stride distance; one footfall per ~65cm of travel.
+	StrideAccumulator += Speed * DeltaSeconds;
+	if (StrideAccumulator < 65.f)
+	{
+		return;
+	}
+	StrideAccumulator = 0.f;
+
+	if (!FootstepSound)
+	{
+		FootstepSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/LostInTheSauce/Sounds/S_Footstep"));
+	}
+	if (FootstepSound)
+	{
+		// Quiet, slightly randomized, and attenuated by distance to the view.
+		const float DistFade = FMath::GetMappedRangeValueClamped(
+			FVector2D(600.f, 2600.f), FVector2D(0.35f, 0.f), FMath::Sqrt(DistSq));
+		UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, GetActorLocation(),
+			DistFade, FMath::FRandRange(0.9f, 1.1f));
 	}
 }
 

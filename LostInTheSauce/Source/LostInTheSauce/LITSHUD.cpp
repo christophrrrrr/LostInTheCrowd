@@ -22,9 +22,9 @@ void ALITSHUD::DrawHUD()
 		return;
 	}
 
-	// While the start menu is up, the game HUD stays completely dark — no
-	// ROUND banner, curtain or counters playing out behind the title screen.
-	if (GameMode->IsMenuPending())
+	// While the start menu is up (or in the portrait photo booth), the game
+	// HUD stays completely dark — no ROUND banner, curtain or counters.
+	if (GameMode->IsMenuPending() || GameMode->IsPortraitMode())
 	{
 		return;
 	}
@@ -82,9 +82,16 @@ void ALITSHUD::DrawHUD()
 		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.55f), 0.f, 0.f, Canvas->SizeX, Canvas->SizeY);
 
 		const FString WinText = FString::Printf(TEXT("YOU FOUND THE %s!"), TargetStyle.DisplayName).ToUpper();
-		DrawCenteredText(WinText, FLinearColor(1.f, 0.85f, 0.3f), CenterX, Canvas->SizeY * 0.42f, 3.f);
+		DrawCenteredText(WinText, FLinearColor(1.f, 0.85f, 0.3f), CenterX, Canvas->SizeY * 0.38f, 3.f);
+
+		const int32 Secs = FMath::RoundToInt(GameMode->GetRoundElapsedSeconds());
+		const int32 Wrong = GameMode->GetWrongGuesses();
+		const FString Stats = FString::Printf(TEXT("Found in %ds   -   %d wrong %s"),
+			Secs, Wrong, Wrong == 1 ? TEXT("guess") : TEXT("guesses"));
+		DrawCenteredText(Stats, FLinearColor(0.95f, 0.92f, 0.82f), CenterX, Canvas->SizeY * 0.38f + 66.f, 1.5f);
+
 		DrawCenteredText(FString::Printf(TEXT("Press R for round %d"), GameMode->GetRoundNumber() + 1),
-			FLinearColor::White, CenterX, Canvas->SizeY * 0.42f + 70.f, 1.5f);
+			FLinearColor::White, CenterX, Canvas->SizeY * 0.38f + 120.f, 1.5f);
 	}
 
 	// --- Round transition curtain (drawn on top of everything) --------------
