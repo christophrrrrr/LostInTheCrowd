@@ -4,12 +4,17 @@
 #include "Components/Border.h"
 #include "Components/Button.h"
 #include "Components/ButtonSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
+#include "Components/Image.h"
 #include "Components/Overlay.h"
 #include "Components/OverlaySlot.h"
+#include "Components/SizeBox.h"
 #include "Components/Spacer.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Engine/Texture2D.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "LITSGameMode.h"
 #include "Styling/CoreStyle.h"
@@ -76,35 +81,79 @@ bool ULITSMenuWidget::Initialize()
 	AddRow(MakeText(WidgetTree, TEXT("One of them is not like the others."), 20,
 		FLinearColor(0.9f, 0.88f, 0.82f), false), 8.f);
 
-	auto MakeModeButton = [&](const FString& Label, const FString& Blurb, const FLinearColor& Color) -> UButton*
+	// --- Two big mode-select cards side by side ---------------------------
+	UHorizontalBox* Cards = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass());
+	UVerticalBoxSlot* CardsRow = Column->AddChildToVerticalBox(Cards);
+	CardsRow->SetHorizontalAlignment(HAlign_Center);
+	CardsRow->SetPadding(FMargin(0.f, 40.f, 0.f, 0.f));
+
+	auto MakeCard = [&](const FString& Name, const FString& Tagline, const TCHAR* PortraitPath,
+		const FLinearColor& Accent) -> UButton*
 	{
-		UButton* Button = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
-		UTextBlock* BLabel = MakeText(WidgetTree, Label, 26, FLinearColor(0.05f, 0.04f, 0.02f));
-		Button->AddChild(BLabel);
-		if (UButtonSlot* BSlot = Cast<UButtonSlot>(BLabel->Slot))
+		// A fixed-size square-ish card.
+		USizeBox* Size = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass());
+		Size->SetWidthOverride(300.f);
+		Size->SetHeightOverride(390.f);
+
+		UButton* Card = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
+		// Per-state background so the card lifts on hover.
+		FButtonStyle Style = Card->GetStyle();
+		Style.Normal.TintColor = FSlateColor(FLinearColor(0.11f, 0.09f, 0.07f, 0.92f));
+		Style.Hovered.TintColor = FSlateColor(FLinearColor(Accent.R * 0.5f, Accent.G * 0.45f, Accent.B * 0.4f, 0.98f));
+		Style.Pressed.TintColor = FSlateColor(FLinearColor(Accent.R * 0.6f, Accent.G * 0.55f, Accent.B * 0.5f, 1.f));
+		Card->SetStyle(Style);
+		Size->AddChild(Card);
+
+		UVerticalBox* Inner = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
+		Card->AddChild(Inner);
+
+		auto InnerRow = [&](UWidget* W, const FMargin& Pad, EHorizontalAlignment HA = HAlign_Center)
 		{
-			BSlot->SetPadding(FMargin(40.f, 10.f));
+			UVerticalBoxSlot* S = Inner->AddChildToVerticalBox(W);
+			S->SetPadding(Pad);
+			S->SetHorizontalAlignment(HA);
+			return S;
+		};
+
+		// Portrait thumbnail in an accent frame.
+		if (UTexture2D* Portrait = LoadObject<UTexture2D>(nullptr, PortraitPath))
+		{
+			UBorder* Frame = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
+			Frame->SetBrushColor(Accent);
+			Frame->SetPadding(FMargin(3.f));
+			UImage* Img = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass());
+			Img->SetBrushFromTexture(Portrait);
+			// Force the draw size (SetDesiredSizeOverride renders tiny inside a box).
+			FSlateBrush Brush = Img->GetBrush();
+			Brush.ImageSize = FVector2D(158.f, 216.f);
+			Img->SetBrush(Brush);
+			Frame->AddChild(Img);
+			InnerRow(Frame, FMargin(0.f, 20.f, 0.f, 0.f));
 		}
-		Button->SetBackgroundColor(Color);
-		AddRow(Button, 24.f);
-		AddRow(MakeText(WidgetTree, Blurb, 14, FLinearColor(0.8f, 0.78f, 0.72f), false), 4.f);
-		return Button;
+
+		InnerRow(MakeText(WidgetTree, Name, 28, FLinearColor(1.f, 0.88f, 0.45f)), FMargin(0.f, 16.f, 0.f, 0.f));
+		UTextBlock* Tag = MakeText(WidgetTree, Tagline, 13, FLinearColor(0.82f, 0.8f, 0.74f), false);
+		Tag->SetAutoWrapText(true);
+		InnerRow(Tag, FMargin(20.f, 8.f, 20.f, 0.f));
+
+		UHorizontalBoxSlot* HSlot = Cards->AddChildToHorizontalBox(Size);
+		HSlot->SetPadding(FMargin(18.f, 0.f));
+		return Card;
 	};
 
-	PlayButton = MakeModeButton(TEXT("ENDLESS"),
-		TEXT("Find the one target. Every win, the crowd grows and colors converge."),
-		FLinearColor(1.f, 0.8f, 0.25f));
+	PlayButton = MakeCard(TEXT("ENDLESS"),
+		TEXT("Find the one target. Each win grows the crowd and blurs the colors. Play forever."),
+		TEXT("/Game/LostInTheSauce/Portraits/P_King"), FLinearColor(1.f, 0.78f, 0.28f));
 	PlayButton->OnClicked.AddDynamic(this, &ULITSMenuWidget::HandleEndlessClicked);
 
-	TimeAttackButton = MakeModeButton(TEXT("TIME ATTACK"),
-		TEXT("Find all 10 targets before the clock. Each clear cuts 10 seconds."),
-		FLinearColor(0.95f, 0.55f, 0.3f));
+	TimeAttackButton = MakeCard(TEXT("TIME ATTACK"),
+		TEXT("Find all 10 before the clock runs out. Each clear cuts 10 seconds. How long can you last?"),
+		TEXT("/Game/LostInTheSauce/Portraits/P_Witch"), FLinearColor(0.95f, 0.5f, 0.85f));
 	TimeAttackButton->OnClicked.AddDynamic(this, &ULITSMenuWidget::HandleTimeAttackClicked);
 
 	AddRow(MakeText(WidgetTree,
-		TEXT("WASD fly   |   Hold right mouse: look   |   Space / Ctrl: up & down\n")
-		TEXT("Shift: faster   |   Esc: pause"),
-		15, FLinearColor(0.75f, 0.73f, 0.67f), false), 30.f);
+		TEXT("WASD fly   |   Hold right mouse: look   |   Space / Ctrl: up & down   |   Shift: faster   |   Esc: pause"),
+		14, FLinearColor(0.72f, 0.7f, 0.64f), false), 34.f);
 
 	QuitButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
 	UTextBlock* QuitLabel = MakeText(WidgetTree, TEXT("Quit"), 16, FLinearColor(0.9f, 0.88f, 0.82f));

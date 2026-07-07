@@ -124,7 +124,7 @@ public:
 	float TAMinTime = 30.f;
 
 	UPROPERTY(EditAnywhere, Category = "TimeAttack")
-	float RevealSeconds = 4.f;
+	float RevealSeconds = 10.f;
 
 protected:
 	void StartRoundTransition();
