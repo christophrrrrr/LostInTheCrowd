@@ -514,7 +514,7 @@ void ALITSGameMode::StartAmbientAudio()
 	}
 	if (USoundBase* Crowd = LoadObject<USoundBase>(nullptr, TEXT("/Game/LostInTheSauce/Sounds/S_Crowd")))
 	{
-		CrowdComponent = UGameplayStatics::SpawnSound2D(this, Crowd, 0.6f, 1.f, 0.f, nullptr, true);
+		CrowdComponent = UGameplayStatics::SpawnSound2D(this, Crowd, 0.1f, 1.f, 0.f, nullptr, true);
 	}
 }
 

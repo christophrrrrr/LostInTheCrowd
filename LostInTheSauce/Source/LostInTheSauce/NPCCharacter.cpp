@@ -325,9 +325,9 @@ void ANPCCharacter::UpdateFootsteps(float Speed, float DeltaSeconds)
 	}
 	if (FootstepSound)
 	{
-		// Quiet, slightly randomized, and attenuated by distance to the view.
+		// Very quiet, slightly randomized, attenuated by distance to the view.
 		const float DistFade = FMath::GetMappedRangeValueClamped(
-			FVector2D(600.f, 2600.f), FVector2D(0.35f, 0.f), FMath::Sqrt(DistSq));
+			FVector2D(400.f, 2000.f), FVector2D(0.05f, 0.f), FMath::Sqrt(DistSq));
 		UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, GetActorLocation(),
 			DistFade, FMath::FRandRange(0.9f, 1.1f));
 	}
