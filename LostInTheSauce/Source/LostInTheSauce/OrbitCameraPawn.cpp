@@ -2,7 +2,6 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/SphereComponent.h"
-#include "Components/SpotLightComponent.h"
 #include "EngineUtils.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PlayerController.h"
@@ -24,17 +23,6 @@ AOrbitCameraPawn::AOrbitCameraPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CollisionSphere);
-
-	// Focused torch beam aimed down the camera's view; off until F is pressed.
-	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
-	Flashlight->SetupAttachment(Camera);
-	Flashlight->SetIntensity(90000.f);
-	Flashlight->SetAttenuationRadius(4500.f);
-	Flashlight->SetInnerConeAngle(16.f);
-	Flashlight->SetOuterConeAngle(28.f);
-	Flashlight->SetLightColor(FLinearColor(1.f, 0.96f, 0.86f));
-	Flashlight->SetCastShadows(false); // cheap even fill; won't hide targets
-	Flashlight->SetVisibility(false);  // off until F is pressed
 
 	Movement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
 	Movement->UpdatedComponent = CollisionSphere;
@@ -109,13 +97,6 @@ void AOrbitCameraPawn::Tick(float DeltaSeconds)
 		InputMode.SetHideCursorDuringCapture(false);
 		PC->SetInputMode(InputMode);
 		PC->bShowMouseCursor = true;
-	}
-
-	// --- Flashlight toggle -------------------------------------------------
-	if (PC->WasInputKeyJustPressed(EKeys::F))
-	{
-		bFlashlightOn = !bFlashlightOn;
-		Flashlight->SetVisibility(bFlashlightOn);
 	}
 
 	// --- Move: WASD where you look, Space/Ctrl vertical, Shift sprint ------

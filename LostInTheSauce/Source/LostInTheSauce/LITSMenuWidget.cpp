@@ -153,7 +153,7 @@ bool ULITSMenuWidget::Initialize()
 
 	AddRow(MakeText(WidgetTree,
 		TEXT("WASD fly   |   Hold right mouse: look   |   Space / Ctrl: up & down\n")
-		TEXT("Shift: faster   |   F: flashlight   |   Esc: pause"),
+		TEXT("Shift: faster   |   Esc: pause"),
 		14, FLinearColor(0.72f, 0.7f, 0.64f), false), 34.f);
 
 	QuitButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
