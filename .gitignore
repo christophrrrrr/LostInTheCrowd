@@ -14,3 +14,7 @@
 *.opendb
 .DS_Store
 Thumbs.db
+
+# Packaged builds (large, regenerable)
+/Packaged/
+*.zip
