@@ -21,10 +21,14 @@ protected:
 
 private:
 	void PickNewDestination();
+	void CheckStuck();
 
 	UPROPERTY(EditAnywhere, Category = "Wander")
 	float WanderRadius = 1200.f;
 
 	bool bWanderEnabled = true;
+	bool bMovingToDestination = false;
+	FVector LastStuckCheckPos = FVector::ZeroVector;
 	FTimerHandle IdleTimerHandle;
+	FTimerHandle StuckTimerHandle;
 };

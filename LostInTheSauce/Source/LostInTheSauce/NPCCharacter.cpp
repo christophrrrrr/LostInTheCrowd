@@ -21,7 +21,8 @@ ANPCCharacter::ANPCCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	GetCapsuleComponent()->InitCapsuleSize(30.f, 90.f);
+	// Slimmer capsule so pairs of NPCs fit through tight doorways together.
+	GetCapsuleComponent()->InitCapsuleSize(22.f, 90.f);
 	// Make sure the click trace (visibility channel) always hits the capsule.
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	// 200 capsules (de)spawning per round transition must never dirty the
@@ -44,11 +45,14 @@ ANPCCharacter::ANPCCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 360.f, 0.f);
 	GetCharacterMovement()->MaxWalkSpeed = 160.f;
 
-	// RVO avoidance: NPCs steer around each other instead of piling up when
-	// their paths cross.
+	// Lightweight RVO avoidance (cheap on the iGPU, unlike DetourCrowd). Low
+	// weight + small radius so agents nudge past each other at doorways
+	// instead of over-avoiding into a deadlock. The slimmer navmesh (smaller
+	// agent radius) is what really unclogs chokepoints — it opens more gaps
+	// so the crowd isn't funnelled through one.
 	GetCharacterMovement()->bUseRVOAvoidance = true;
-	GetCharacterMovement()->AvoidanceConsiderationRadius = 120.f;
-	GetCharacterMovement()->AvoidanceWeight = 0.5f;
+	GetCharacterMovement()->AvoidanceConsiderationRadius = 90.f;
+	GetCharacterMovement()->AvoidanceWeight = 0.3f;
 
 	AIControllerClass = ANPCAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;

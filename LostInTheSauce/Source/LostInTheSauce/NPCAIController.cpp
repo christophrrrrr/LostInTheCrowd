@@ -8,15 +8,40 @@ void ANPCAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	// Stagger the first move so 50 NPCs don't all path on the same frame.
+	// Stagger the first move so 100 NPCs don't all path on the same frame.
 	GetWorldTimerManager().SetTimer(IdleTimerHandle, this, &ANPCAIController::PickNewDestination,
 		FMath::FRandRange(0.2f, 1.5f), false);
+
+	// Cheap stuck-detection (no crowd/navmesh cost): if an agent is trying to
+	// move but hasn't made progress, it's jammed at a chokepoint — repath.
+	GetWorldTimerManager().SetTimer(StuckTimerHandle, this, &ANPCAIController::CheckStuck,
+		FMath::FRandRange(1.5f, 2.0f), true);
 }
 
 void ANPCAIController::OnUnPossess()
 {
 	GetWorldTimerManager().ClearTimer(IdleTimerHandle);
+	GetWorldTimerManager().ClearTimer(StuckTimerHandle);
 	Super::OnUnPossess();
+}
+
+void ANPCAIController::CheckStuck()
+{
+	if (!bWanderEnabled || !bMovingToDestination || !GetPawn())
+	{
+		return;
+	}
+	// Made less than ~35cm of progress since the last check while supposedly
+	// walking → jammed. Abort and pick a fresh destination (often away from
+	// the clogged doorway).
+	const FVector Now = GetPawn()->GetActorLocation();
+	if (FVector::DistSquared2D(Now, LastStuckCheckPos) < FMath::Square(35.f))
+	{
+		StopMovement();
+		bMovingToDestination = false;
+		PickNewDestination();
+	}
+	LastStuckCheckPos = Now;
 }
 
 void ANPCAIController::SetWanderEnabled(bool bEnabled)
@@ -68,6 +93,8 @@ void ANPCAIController::PickNewDestination()
 			UE_LOG(LogTemp, Log, TEXT("LITS: navmesh OK, NPCs wandering"));
 		}
 		MoveToLocation(Destination.Location, 40.f);
+		bMovingToDestination = true;
+		LastStuckCheckPos = GetPawn()->GetActorLocation();
 	}
 	else
 	{
@@ -85,6 +112,7 @@ void ANPCAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
 {
 	Super::OnMoveCompleted(RequestID, Result);
 
+	bMovingToDestination = false;
 	if (!bWanderEnabled)
 	{
 		return;

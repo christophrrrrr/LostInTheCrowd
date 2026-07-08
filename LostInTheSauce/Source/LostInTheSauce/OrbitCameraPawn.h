@@ -7,6 +7,7 @@
 class UCameraComponent;
 class UFloatingPawnMovement;
 class USphereComponent;
+class USpotLightComponent;
 
 // Free-fly camera: WASD moves, Space/Ctrl up/down, Shift = faster, hold the
 // RIGHT mouse button to look around; cursor stays free otherwise for
@@ -35,6 +36,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	TObjectPtr<UFloatingPawnMovement> Movement;
 
+	// Focused flashlight pointing where the camera looks; toggled with F.
+	UPROPERTY(VisibleAnywhere, Category = "Flashlight")
+	TObjectPtr<USpotLightComponent> Flashlight;
+
 	UPROPERTY(EditAnywhere, Category = "Fly")
 	float LookSpeed = 3.0f; // degrees per unit of captured mouse delta
 
@@ -55,6 +60,7 @@ private:
 	float Yaw = 0.f;
 	float Pitch = -40.f;
 	bool bLooking = false;
+	bool bFlashlightOn = false;
 	FVector2D BoundsMin = FVector2D(-3200.f, -3200.f);
 	FVector2D BoundsMax = FVector2D(3200.f, 3200.f);
 };

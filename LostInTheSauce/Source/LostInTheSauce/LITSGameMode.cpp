@@ -462,8 +462,10 @@ void ALITSGameMode::DumpDiagnostics()
 {
 	UE_LOG(LogTemp, Log, TEXT("LITS-DIAG ======================================"));
 	extern ENGINE_API float GAverageFPS;
-	UE_LOG(LogTemp, Log, TEXT("LITS-DIAG avgFPS=%.1f round=%d similarity=%.2f"),
-		GAverageFPS, RoundNumber, GetColorSimilarity());
+	const float DT = GetWorld()->GetDeltaSeconds();
+	const float InstFPS = DT > 0.f ? 1.f / DT : 0.f;
+	UE_LOG(LogTemp, Log, TEXT("LITS-DIAG avgFPS=%.1f instFPS=%.1f round=%d"),
+		GAverageFPS, InstFPS, RoundNumber);
 
 	if (const APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
