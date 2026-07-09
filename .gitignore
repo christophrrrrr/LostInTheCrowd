@@ -18,3 +18,6 @@ Thumbs.db
 # Packaged builds (large, regenerable)
 /Packaged/
 *.zip
+
+# Gameplay video is too large for GitHub (>100MB) — hosted on itch.io instead
+screenshots/*.mp4
